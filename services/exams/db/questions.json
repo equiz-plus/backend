@@ -1,0 +1,82 @@
+[
+  {
+    "question": "Whistler was the codename of this Microsoft Operating System.",
+    "option1": "Windows 2000",
+    "option2": "Windows 7",
+    "option3": "Windows XP",
+    "option4": "Windows 95",
+    "answer": 3,
+    "isPremium": false,
+    "explanation": "Whistler was the codename of this Microsoft Operating System Windows XP"
+  },
+  {
+    "question": "Moore's law originally stated that the number of transistors on a microprocessor chip would double every...",
+    "option1": "Year",
+    "option2": "Four Years",
+    "option3": "Two Years",
+    "option4": "Eight Years",
+    "answer": 1,
+    "isPremium": false,
+    "explanation": "Moore's law originally stated that the number of transistors on a microprocessor chip would double every year"
+  },
+  {
+    "question": "When was the programming language #C released?",
+    "option1": "1998",
+    "option2": "1999",
+    "option3": "2000",
+    "option4": "2001",
+    "answer": 3,
+    "isPremium": false,
+    "explanation": "Programming language #C released at 2000"
+  },
+  {
+    "question": "What five letter word is the motto of the IBM Computer company?",
+    "option1": "Click",
+    "option2": "Think",
+    "option3": "Logic",
+    "option4": "Pixel",
+    "answer": 2,
+    "isPremium": false,
+    "explanation": "five letter word is the motto of the IBM Computer company is Think"
+  },
+  {
+    "question": "All of the following programs are classified as raster graphics editors EXCEPT:",
+    "option1": "Paint.NET",
+    "option2": "GIMP",
+    "option3": "Adobe Photoshop",
+    "option4": "Inkscape",
+    "answer": 4,
+    "isPremium": false,
+    "explanation": "Paint.NET, GIMP and Adobe Photoshop are classified as raster graphics editors"
+  },
+  {
+    "question": "Nvidia's headquarters are based in which Silicon Valley city?",
+    "option1": "Santa Clara",
+    "option2": "Palo Alto",
+    "option3": "Cupertino",
+    "option4": "Mountain View",
+    "answer": 1,
+    "isPremium": false,
+    "explanation": "Nvidia's headquarters are based in Santa Clara, Silicon Valey"
+  },
+  {
+    "question": "What was the name given to Android 4.3?",
+    "option1": "Jelly Bean",
+    "option2": "Lollipop",
+    "option3": "Nutella",
+    "option4": "Froyo",
+    "answer": 1,
+    "isPremium": false,
+    "explanation": "Android 4.3 name is Jelly Bean"
+  },
+  {
+    "question": "Which of these is the name for the failed key escrow device introduced by the National Security Agency in 1993?",
+    "option1": "Nautilus",
+    "option2": "Skipjack",
+    "option3": "Enigma Machine",
+    "option4": "Clipper Chip",
+    "answer": 4,
+    "isPremium": false,
+    "explanation": "Clipper Chip is the name for the failed key escrow device introduced by the National Security Agency in 1993"
+  }
+]

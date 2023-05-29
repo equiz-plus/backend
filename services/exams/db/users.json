@@ -1,0 +1,47 @@
+[
+  {
+    "username": "Liu",
+    "email": "admin@mail.com",
+    "password": "password123",
+    "phone": "0812345678",
+    "name": "Liu Purnomo",
+    "gender": "male",
+    "avatar": "https://liupurnomo.com/wp-content/uploads/2023/02/liupurnomo-1024x1024.png",
+    "role": "admin",
+    "isPremium": true
+  },
+  {
+    "username": "Alpa",
+    "email": "alpha@mail.com",
+    "password": "password123",
+    "phone": "0812345678",
+    "name": "Alpa Premium",
+    "gender": "male",
+    "avatar": "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png",
+    "role": "user",
+    "isPremium": true
+  },
+  {
+    "username": "Bravo",
+    "email": "bravo@mail.com",
+    "password": "password123",
+    "phone": "0812345678",
+    "name": "Bravo Basic",
+    "gender": "male",
+    "avatar": "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png",
+    "role": "user",
+    "isPremium": false
+  },
+  {
+    "username": "Charlie",
+    "email": "charlie@mail.com",
+    "password": "password123",
+    "phone": "0812345678",
+    "name": "Chalie Guest",
+    "gender": "male",
+    "avatar": "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png",
+    "role": "guest",
+    "isPremium": false,
+    "tokenKey": "XXXX"
+  }
+]
