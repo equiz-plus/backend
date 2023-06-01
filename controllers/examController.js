@@ -8,7 +8,6 @@ const {
   Grade,
   sequelize,
 } = require("../models");
-const { pinGenerator } = require("../helpers");
 
 // list of exams
 class examController {

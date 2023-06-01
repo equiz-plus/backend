@@ -12,11 +12,11 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
      */
-    const answers = require("../db/answer.json");
-    answers.forEach((el) => {
+    const categories = require("../db/categories.json");
+    categories.forEach((el) => {
       el.createdAt = el.updatedAt = new Date();
     });
-    await queryInterface.bulkInsert("Answers", answers);
+    await queryInterface.bulkInsert("Categories", categories);
   },
 
   async down(queryInterface, Sequelize) {
@@ -26,6 +26,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete("Answers", null);
+    await queryInterface.bulkDelete("Categories", null, {});
   },
 };

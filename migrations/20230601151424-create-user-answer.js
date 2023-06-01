@@ -2,41 +2,56 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Exams", {
+    await queryInterface.createTable("UserAnswers", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      title: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      description: {
-        type: Sequelize.TEXT,
-      },
-      totalQuestions: {
+      questionNumber: {
         allowNull: false,
         type: Sequelize.INTEGER,
       },
-      duration: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-      },
-      CategoryId: {
+      QuestionId: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
-          model: "Categories",
+          model: "Questions",
           key: "id",
         },
         onDelete: "cascade",
         onUpdate: "cascade",
       },
-      isOpen: {
+      AnswerId: {
         allowNull: false,
-        type: Sequelize.BOOLEAN,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Answers",
+          key: "id",
+        },
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      },
+      ExamId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Exams",
+          key: "id",
+        },
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      },
+      UserId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onUpdate: "cascade",
+        onDelete: "cascade",
       },
       createdAt: {
         allowNull: false,
@@ -49,6 +64,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Exams");
+    await queryInterface.dropTable("UserAnswers");
   },
 };

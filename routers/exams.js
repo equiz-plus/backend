@@ -5,8 +5,6 @@ const router = express.Router();
 
 router.use(isLoggedIn);
 
-// heading /api/exams
-
 router.get("/", isAdmin, examController.examLists);
 router.post("/", isAdmin, examController.create);
 router.put("/:id", isAdmin, examController.edit);
