@@ -9,6 +9,7 @@ const { User } = require("../models");
 const sendEmailConfirmation = require("../helpers/sendEmailConfirmation");
 const cloudinary = require("../helpers/cloudinary");
 const midtransClient = require("midtrans-client");
+
 class userController {
   //get all user data
   static async index(req, res, next) {
@@ -39,6 +40,7 @@ class userController {
       next(err);
     }
   }
+
   //static for register
   static async register(req, res, next) {
     try {
@@ -66,6 +68,7 @@ class userController {
     }
   }
 
+  // user confirm by email
   static async confirmation(req, res, next) {
     try {
       let tokenKey;
@@ -103,7 +106,7 @@ class userController {
     }
   }
 
-  //statuc for login normal
+  //status for login normal
   static async login(req, res, next) {
     try {
       const { email, password } = req.body;
@@ -389,6 +392,7 @@ class userController {
     }
   }
 
+  // delete user juga menghapus semua riwayat ujian, answers dan gradenya
   static async delete(req, res, next) {
     try {
       const id = +req.params.id;

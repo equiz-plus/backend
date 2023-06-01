@@ -7,11 +7,11 @@ router.use(isLoggedIn);
 
 // heading /api/exams
 
-router.get("/", isAdmin, examController.index);
+router.get("/", isAdmin, examController.examLists);
 router.post("/", isAdmin, examController.create);
 router.put("/:id", isAdmin, examController.edit);
 router.delete("/:id", isAdmin, examController.delete);
-router.get("/list", examController.indexForUser);
+
 router.get("/session", examController.getSession);
 router.get("/question", examController.getQuestion);
 router.get("/detail/:id", examController.detailForUser);

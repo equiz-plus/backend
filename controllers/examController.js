@@ -10,12 +10,14 @@ const {
 } = require("../models");
 const { pinGenerator } = require("../helpers");
 
+// list of exams
 class examController {
-  static async index(req, res, next) {
+  static async examLists(req, res, next) {
     try {
       const { search } = req.query;
 
       let whereCondition = {};
+
       if (search) {
         whereCondition = {
           title: {
@@ -37,33 +39,7 @@ class examController {
     }
   }
 
-  static async indexForUser(req, res, next) {
-    try {
-      const { search } = req.query;
-
-      let whereCondition = {};
-      if (search) {
-        whereCondition = {
-          title: {
-            [Op.iLike]: `%${search}%`,
-          },
-        };
-      }
-
-      const { count, rows } = await Exam.findAndCountAll({
-        where: whereCondition,
-      });
-      if (search && count <= 0) throw { name: "NotFound" };
-      res.status(200).json({
-        count,
-        exams: rows,
-      });
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  // createExam
+  // create new exam
   static async create(req, res, next) {
     try {
       const { title, description, totalQuestions, duration, closingDate } =
@@ -174,6 +150,8 @@ class examController {
     }
   }
 
+  // delete exams
+  // CASCADE: bookmarks, user answers, exam schedules, grades, sessions
   static async delete(req, res, next) {
     try {
       const id = req.params.id;
@@ -220,7 +198,7 @@ class examController {
 
       if (gradeExist) throw { name: "ExamTaken" };
 
-      // if never take, create grade entry
+      // if never take, create new grade entry
       await Grade.create(
         {
           totalQuestions: exam.totalQuestions,
@@ -256,7 +234,8 @@ class examController {
         limit: exam.totalQuestions,
       });
 
-      // may only attend one exam, destroy all active exam session
+      // may only attend one exam, destroy all active exam session.
+      // one user per one session per one question group at a time
       await QuestionGroup.destroy({
         where: {
           UserId: id,
@@ -289,7 +268,6 @@ class examController {
             model: QuestionGroup,
             include: {
               model: Question,
-              attributes: { exclude: ["answer", "explanation"] },
             },
           },
         ],
@@ -306,12 +284,62 @@ class examController {
     }
   }
 
+  // displaying questions to user FE
+  static async getQuestion(req, res, next) {
+    try {
+      const UserId = +req.user.id;
+      const question = await QuestionGroup.findAll({
+        where: {
+          UserId: UserId,
+        },
+        include: [
+          {
+            model: Question,
+          },
+          {
+            model: Session,
+          },
+        ],
+        order: [["questionNumber", "ASC"]],
+      });
+      res.status(200).json(question);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // checking on current exam session, in case of power failure
+  static async getSession(req, res, next) {
+    try {
+      const UserId = +req.user.id;
+      const examination = await Session.findOne({
+        where: {
+          UserId: UserId,
+        },
+        include: [
+          Exam,
+          {
+            model: QuestionGroup,
+            include: {
+              model: Question,
+            },
+          },
+        ],
+      });
+      res.status(200).json(examination);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // user answering the question
   static async answer(req, res, next) {
     try {
       const UserId = +req.user.id;
       const questionNumber = +req.params.questionNumber;
       const { answer } = req.body;
 
+      // getting back to previous session
       const question = await QuestionGroup.findOne({
         where: {
           UserId: UserId,
@@ -338,7 +366,7 @@ class examController {
 
       let totalCorrect = getGrade.totalCorrect;
       let totalQuestions = getGrade.totalQuestions;
-      let correctAnswer;
+
       let isCorrect = false;
 
       if (question.Question.answer === "1")
@@ -433,54 +461,6 @@ class examController {
     }
   }
 
-  static async getSession(req, res, next) {
-    try {
-      const UserId = +req.user.id;
-      const examination = await Session.findOne({
-        where: {
-          UserId: UserId,
-        },
-        include: [
-          Exam,
-          {
-            model: QuestionGroup,
-            include: {
-              model: Question,
-              attributes: { exclude: ["answer", "explanation"] },
-            },
-          },
-        ],
-      });
-      res.status(200).json(examination);
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  static async getQuestion(req, res, next) {
-    try {
-      const UserId = +req.user.id;
-      const question = await QuestionGroup.findAll({
-        where: {
-          UserId: UserId,
-        },
-        include: [
-          {
-            model: Question,
-            attributes: { exclude: ["answer", "explanation"] },
-          },
-          {
-            model: Session,
-          },
-        ],
-        order: [["questionNumber", "ASC"]],
-      });
-      res.status(200).json(question);
-    } catch (err) {
-      next(err);
-    }
-  }
-
   static async myAnswer(req, res, next) {
     try {
       const ExamId = +req.params.examId;
@@ -492,7 +472,6 @@ class examController {
         },
         include: {
           model: Question,
-          attributes: { exclude: ["answer", "explanation"] },
         },
         order: [["QuestionNumber", "ASC"]],
       });
@@ -513,7 +492,6 @@ class examController {
         },
         include: {
           model: Question,
-          attributes: { exclude: ["answer", "explanation"] },
         },
       });
       res.status(200).json(answers);
