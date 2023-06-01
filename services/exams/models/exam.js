@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Exam extends Model {
     /**
@@ -11,78 +9,57 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Exam.hasMany(models.Session, { foreignKey: 'ExamId' })
-      Exam.hasMany(models.Grade, { foreignKey: 'ExamId' })
-      Exam.hasMany(models.Answer, { foreignKey: 'ExamId' })
+      Exam.hasMany(models.Session, { foreignKey: "ExamId" });
+      Exam.hasMany(models.Grade, { foreignKey: "ExamId" });
+      Exam.hasMany(models.Answer, { foreignKey: "ExamId" });
     }
   }
-  Exam.init({
-    title: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: 'Title is required'
+  Exam.init(
+    {
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "Title is required",
+          },
+          notEmpty: {
+            msg: "Title is required",
+          },
         },
-        notEmpty: {
-          msg: 'Title is required'
-        }
-      }
-    },
-    description: DataTypes.TEXT,
-    totalQuestions: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: 'Total questions is required'
+      },
+      description: DataTypes.TEXT,
+      totalQuestions: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "Total questions is required",
+          },
+          notEmpty: {
+            msg: "Total questions is required",
+          },
         },
-        notEmpty: {
-          msg: 'Total questions is required'
-        }
-      }
-    },
-    duration: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: 'Duration is required'
+      },
+      duration: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "Duration is required",
+          },
+          notEmpty: {
+            msg: "Duration is required",
+          },
         },
-        notEmpty: {
-          msg: 'Duration is required'
-        }
-      }
+      },
+      isOpen: DataTypes.BOOLEAN,
+      closingDate: DataTypes.DATE,
     },
-    isPremium: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: 'Status is required'
-        },
-        notEmpty: {
-          msg: 'Status is required'
-        }
-      }
-    },
-    pin: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: 'PIN is required'
-        },
-        notEmpty: {
-          msg: 'PIN is required'
-        }
-      }
-    },
-    isOpen: DataTypes.BOOLEAN,
-    closingDate: DataTypes.DATE,
-  }, {
-    sequelize,
-    modelName: 'Exam',
-  });
+    {
+      sequelize,
+      modelName: "Exam",
+    }
+  );
   return Exam;
 };
