@@ -10,9 +10,10 @@ router.post("/", isAdmin, examController.create);
 router.put("/:id", isAdmin, examController.edit);
 router.delete("/:id", isAdmin, examController.delete);
 
+router.get("/list", examController.examListsUser);
 router.get("/session", examController.getSession);
 router.get("/question", examController.getQuestion);
-router.get("/detail/:id", examController.detailForUser);
+router.get("/detail/:id", examController.examDetail);
 router.patch(
   "/change-visibility/:id",
   isAdmin,
