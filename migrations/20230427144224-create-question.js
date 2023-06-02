@@ -13,13 +13,15 @@ module.exports = {
         allowNull: false,
         type: Sequelize.TEXT,
       },
-      isPremium: {
-        allowNull: false,
-        type: Sequelize.BOOLEAN,
-      },
       CategoryId: {
         allowNull: false,
         type: Sequelize.INTEGER,
+        references: {
+          model: "Categories",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       },
       createdAt: {
         allowNull: false,

@@ -11,7 +11,9 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Exam.hasMany(models.Session, { foreignKey: "ExamId" });
       Exam.hasMany(models.Grade, { foreignKey: "ExamId" });
-      Exam.hasMany(models.Answer, { foreignKey: "ExamId" });
+      Exam.hasMany(models.UserAnswer, { foreignKey: "ExamId" });
+      Exam.hasMany(models.Bookmark, { foreignKey: "ExamId" });
+      Exam.belongsTo(models.Category, { foreignKey: "CategoryId" });
     }
   }
   Exam.init(
@@ -28,7 +30,18 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
-      description: DataTypes.TEXT,
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "Description is required",
+          },
+          notEmpty: {
+            msg: "Description is required",
+          },
+        },
+      },
       totalQuestions: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -53,8 +66,19 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
+      CategoryId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "Category ID is required",
+          },
+          notEmpty: {
+            msg: "Category ID is required",
+          },
+        },
+      },
       isOpen: DataTypes.BOOLEAN,
-      closingDate: DataTypes.DATE,
     },
     {
       sequelize,

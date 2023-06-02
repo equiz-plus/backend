@@ -1,7 +1,7 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class QuestionGroup extends Model {
+  class Bookmark extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -9,20 +9,19 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      QuestionGroup.belongsTo(models.Question, { foreignKey: "QuestionId" });
-      QuestionGroup.belongsTo(models.Session, { foreignKey: "SessionId" });
+      Bookmark.belongsTo(models.User, { foreignKey: "UserId" });
+      Bookmark.belongsTo(models.Exam, { foreignKey: "ExamId" });
     }
   }
-  QuestionGroup.init(
+  Bookmark.init(
     {
-      questionNumber: DataTypes.INTEGER,
-      QuestionId: DataTypes.INTEGER,
-      SessionId: DataTypes.INTEGER,
+      UserId: DataTypes.INTEGER,
+      ExamId: DataTypes.INTEGER,
     },
     {
       sequelize,
-      modelName: "QuestionGroup",
+      modelName: "Bookmark",
     }
   );
-  return QuestionGroup;
+  return Bookmark;
 };

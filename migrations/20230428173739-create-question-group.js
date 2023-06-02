@@ -1,59 +1,49 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('QuestionGroups', {
+    await queryInterface.createTable("QuestionGroups", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       questionNumber: {
         allowNull: false,
-        type: Sequelize.INTEGER
-      },
-      SessionId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Sessions',
-          key: 'id'
-        },
-        onDelete: 'cascade',
-        onUpdate: 'cascade'
-      },
-      UserId: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Users',
-          key: 'id'
-        },
-        onDelete: 'cascade',
-        onUpdate: 'cascade'
       },
       QuestionId: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
-          model: 'Questions',
-          key: 'id'
+          model: "Questions",
+          key: "id",
         },
-        onDelete: 'cascade',
-        onUpdate: 'cascade'
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      },
+      SessionId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Sessions",
+          key: "id",
+        },
+        onDelete: "cascade",
+        onUpdate: "cascade",
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('QuestionGroups');
-  }
+    await queryInterface.dropTable("QuestionGroups");
+  },
 };

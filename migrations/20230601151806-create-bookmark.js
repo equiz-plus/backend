@@ -2,41 +2,32 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Exams", {
+    await queryInterface.createTable("Bookmarks", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      title: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      description: {
-        type: Sequelize.TEXT,
-      },
-      totalQuestions: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-      },
-      duration: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-      },
-      CategoryId: {
+      UserId: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
-          model: "Categories",
+          model: "Users",
           key: "id",
         },
         onDelete: "cascade",
         onUpdate: "cascade",
       },
-      isOpen: {
+      ExamId: {
         allowNull: false,
-        type: Sequelize.BOOLEAN,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Exams",
+          key: "id",
+        },
+        onDelete: "cascade",
+        onUpdate: "cascade",
       },
       createdAt: {
         allowNull: false,
@@ -49,6 +40,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Exams");
+    await queryInterface.dropTable("Bookmarks");
   },
 };

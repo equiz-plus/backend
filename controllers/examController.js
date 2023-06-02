@@ -8,9 +8,9 @@ const {
   Grade,
   sequelize,
 } = require("../models");
-const { pinGenerator } = require("../helpers");
 
 // list of exams
+// *admin
 class examController {
   static async examLists(req, res, next) {
     try {
@@ -40,9 +40,10 @@ class examController {
   }
 
   // create new exam
+  // *admin
   static async create(req, res, next) {
     try {
-      const { title, description, totalQuestions, duration, closingDate } =
+      const { title, description, totalQuestions, duration, CategoryId } =
         req.body;
 
       if (totalQuestions < 5 || totalQuestions > 100)
@@ -53,9 +54,8 @@ class examController {
         description,
         totalQuestions,
         duration,
+        CategoryId,
         isOpen: false,
-        closingDate,
-        pin: pinGenerator(),
       });
       res.status(201).json(exam);
     } catch (err) {
@@ -63,25 +63,21 @@ class examController {
     }
   }
 
-  static async detailForUser(req, res, next) {
-    try {
-      const { id } = req.params;
-      const exams = await Exam.findOne({
-        where: { id },
-        attributes: {
-          exclude: ["pin"],
-        },
-      });
-      if (!exams) throw { name: "NotFound" };
-      res.status(200).json(exams);
-    } catch (err) {
-      next(err);
-    }
-  }
-
+  // edit exam detail
+  // *admin
   static async edit(req, res, next) {
     try {
       const { id } = req.params;
+
+      // check first if there's any active session using the exam
+      const activeSession = await Session.findAll({
+        where: { ExamId: +id },
+      });
+
+      if (activeSession) {
+        throw { name: "SessionExist" };
+      }
+
       const {
         title,
         description,
@@ -126,6 +122,7 @@ class examController {
   }
 
   // opening exam for access, or closing exam
+  // *admin
   static async changeVisibility(req, res, next) {
     try {
       const { id } = req.params;
@@ -150,11 +147,21 @@ class examController {
     }
   }
 
-  // delete exams
-  // CASCADE: bookmarks, user answers, exam schedules, grades, sessions
+  // delete exam
+  // *admin
   static async delete(req, res, next) {
     try {
-      const id = req.params.id;
+      const { id } = req.params;
+      // check first if there's any active session using the exam
+      const activeSession = await Session.findAll({
+        where: { ExamId: +id },
+      });
+
+      if (activeSession) {
+        throw { name: "SessionExist" };
+      }
+
+      // executing delete
       const exam = await Exam.destroy({
         where: {
           id,
@@ -171,37 +178,89 @@ class examController {
     }
   }
 
+  // show exam detail
+  // *both
+  static async examDetail(req, res, next) {
+    try {
+      const { id } = req.params;
+      const exams = await Exam.findOne({
+        where: { id },
+      });
+      if (!exams) throw { name: "NotFound" };
+      res.status(200).json(exams);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // list of exams. Only shows open exam.
+  // *user
+  static async examListsUser(req, res, next) {
+    try {
+      const { search } = req.query;
+
+      let whereCondition = {};
+
+      if (search) {
+        whereCondition = {
+          title: {
+            [Op.iLike]: `%${search}%`,
+          },
+          isOpen: true,
+        };
+      } else {
+        whereCondition = {
+          isOpen: true,
+        };
+      }
+
+      const { count, rows } = await Exam.findAndCountAll({
+        where: whereCondition,
+      });
+      if (search && count <= 0) throw { name: "NotFound" };
+      res.status(200).json({
+        count,
+        exams: rows,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   // begin EXAM
   static async start(req, res, next) {
     const generateExamTransaction = await sequelize.transaction();
     try {
-      const { id, isPremium } = req.user;
+      const { id } = req.user;
       const ExamId = req.params.id;
 
+      // check first if user is already in exam
+      const activeSession = await Session.findAll({
+        where: { UserId: +id },
+      });
+
+      if (activeSession) throw { name: "InExam" };
+
+      // check if exam exists
       const exam = await Exam.findByPk(+ExamId);
       if (!exam) throw { name: "NotFound" };
       if (!exam.isOpen) throw { name: "ExamClose" };
 
       // initializing exam session
       // ensure student never attends exam
-      const gradeExist = await Grade.findOne(
-        {
-          where: {
-            ExamId,
-            UserId: id,
-          },
+      const gradeExist = await Grade.findOne({
+        where: {
+          ExamId,
+          UserId: id,
         },
-        {
-          transaction: generateExamTransaction,
-        }
-      );
+      });
 
       if (gradeExist) throw { name: "ExamTaken" };
 
       // if never take, create new grade entry
       await Grade.create(
         {
-          totalQuestions: exam.totalQuestions,
+          totalIncorrect: 0,
           totalCorrect: 0,
           grade: 0,
           ExamId,
@@ -216,6 +275,19 @@ class examController {
       let timeStop = new Date().getTime() + exam.duration * 60000;
       timeStop = new Date(timeStop);
 
+      // get random questions for exam
+      const randomQuestions = await Question.findAll(
+        {
+          where: {
+            CategoryId: exam.CategoryId,
+          },
+        },
+        {
+          order: [[Sequelize.fn("RANDOM")]],
+          limit: exam.totalQuestions,
+        }
+      );
+
       // create exam session
       const session = await Session.create(
         {
@@ -228,27 +300,13 @@ class examController {
         }
       );
 
-      // get random questions for exam
-      const randomQuestions = await Question.findAll({
-        order: [[Sequelize.fn("RANDOM")]],
-        limit: exam.totalQuestions,
-      });
-
-      // may only attend one exam, destroy all active exam session.
-      // one user per one session per one question group at a time
-      await QuestionGroup.destroy({
-        where: {
-          UserId: id,
-        },
-      });
-
+      // menyiapkan questions yang unique utk user
       let questionGroups = [];
       let questionNumber = 1;
       randomQuestions.forEach((el) => {
         questionGroups.push({
           questionNumber,
           SessionId: session.id,
-          UserId: id,
           QuestionId: el.id,
         });
         questionNumber++;
@@ -258,25 +316,10 @@ class examController {
         transaction: generateExamTransaction,
       });
 
-      const examination = await Session.findAll({
-        where: {
-          id: session.id,
-        },
-        include: [
-          Exam,
-          {
-            model: QuestionGroup,
-            include: {
-              model: Question,
-            },
-          },
-        ],
-      });
-
       await generateExamTransaction.commit();
 
       res.status(200).json({
-        examination,
+        message: `Exam started for user ${id}`,
       });
     } catch (err) {
       await generateExamTransaction.rollback();

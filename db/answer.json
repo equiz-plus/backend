@@ -1,122 +1,122 @@
 [
   {
-    "name": "Windows 2000",
+    "answer": "Windows 2000",
     "QuestionId": 1,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "Lorem Ipsum"
   },
   {
-    "name": "Windows 7",
+    "answer": "Windows 7",
     "QuestionId": 1,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "Lorem Ipsum"
   },
   {
-    "name": "Windows XP",
+    "answer": "Windows XP",
     "QuestionId": 1,
-    "isTrue": true,
+    "isCorrect": true,
     "explanation": "Whistler was the codename of this Microsoft Operating System."
   },
   {
-    "name": "Windows 95",
+    "answer": "Windows 95",
     "QuestionId": 1,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "Lorem Ipsum"
   },
   {
-    "name": "Year",
+    "answer": "Year",
     "QuestionId": 2,
-    "isTrue": true,
+    "isCorrect": true,
     "explanation": "Moore's law originally stated that the number of transistors on a microprocessor chip would double every year"
   },
   {
-    "name": "Four Years",
+    "answer": "Four Years",
     "QuestionId": 2,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "Dolor sit"
   },
   {
-    "name": "Two Years",
+    "answer": "Two Years",
     "QuestionId": 2,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "Dolor sit"
   },
   {
-    "name": "Eight Years",
+    "answer": "Eight Years",
     "QuestionId": 2,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "Dolor sit"
   },
   {
-    "name": "1998",
+    "answer": "1998",
     "QuestionId": 3,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "Hescucita"
   },
   {
-    "name": "1999",
+    "answer": "1999",
     "QuestionId": 3,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "Hescucita"
   },
   {
-    "name": "2000",
+    "answer": "2000",
     "QuestionId": 3,
-    "isTrue": true,
+    "isCorrect": true,
     "explanation": "Programming language #C released at 2000"
   },
   {
-    "name": "2001",
+    "answer": "2001",
     "QuestionId": 3,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "Hescucita"
   },
   {
-    "name": "Click",
+    "answer": "Click",
     "QuestionId": 4,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "Neque porro"
   },
   {
-    "name": "Think",
+    "answer": "Think",
     "QuestionId": 4,
-    "isTrue": true,
+    "isCorrect": true,
     "explanation": "five letter word is the motto of the IBM Computer company is Think"
   },
   {
-    "name": "Logic",
+    "answer": "Logic",
     "QuestionId": 4,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "Neque porro"
   },
   {
-    "name": "Pixel",
+    "answer": "Pixel",
     "QuestionId": 4,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "Neque porro"
   },
   {
-    "name": "Paint.NET",
+    "answer": "Paint.NET",
     "QuestionId": 5,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "quisquam est qui "
   },
   {
-    "name": "GIMP",
+    "answer": "GIMP",
     "QuestionId": 5,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "quisquam est qui "
   },
   {
-    "name": "Adobe Photoshop",
+    "answer": "Adobe Photoshop",
     "QuestionId": 5,
-    "isTrue": false,
+    "isCorrect": false,
     "explanation": "quisquam est qui "
   },
   {
-    "name": "Inkscape",
+    "answer": "Inkscape",
     "QuestionId": 5,
-    "isTrue": true,
+    "isCorrect": true,
     "explanation": "Paint.NET, GIMP and Adobe Photoshop are classified as raster graphics editors"
   }
 ]

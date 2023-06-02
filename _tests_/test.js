@@ -1,27 +1,25 @@
 const request = require("supertest");
 const app = require("../app");
 const { deleteUser, updateToken } = require("../lib/userInit");
-// const { createProducts, deleteProducts } = require("../lib/productsInit");
 const { comparePassword, hashPassword } = require("../helpers/bcrypt");
 const { deleteExam } = require("../lib/examInit");
 
 // seeding
-beforeAll(async () => {
-  // await createProducts();
-});
+// beforeAll(async () => {
+
+// });
 
 // cleaning
 afterAll(async () => {
   await deleteUser();
   await deleteExam();
-  // await deleteProducts();
 });
 
 // route for register
-describe("POST /api/user/register", () => {
+describe("POST /register", () => {
   it("should return REGISTER SUCCESS: User was registered successfully! Please check your email", async () => {
     const res = await request(app)
-      .post("/api/user/register")
+      .post("/register")
       .send({
         email: "student@test.com",
         password: "12345678",
@@ -36,7 +34,7 @@ describe("POST /api/user/register", () => {
 
   it("should return REGISTER FAILED: Email has been taken (unique error)", async () => {
     const res = await request(app)
-      .post("/api/user/register")
+      .post("/register")
       .send({
         email: "student@test.com",
         password: "12345678",
@@ -49,7 +47,7 @@ describe("POST /api/user/register", () => {
 
   it("should return REGISTER FAILED: Invalid email format", async () => {
     const res = await request(app)
-      .post("/api/user/register")
+      .post("/register")
       .send({ email: "student", password: "12345678" })
       .expect(400);
 
@@ -58,7 +56,7 @@ describe("POST /api/user/register", () => {
 
   it("should return register FAILED: Email is required (email empty string)", async () => {
     const res = await request(app)
-      .post("/api/user/register")
+      .post("/register")
       .send({ email: "", password: "12345678" })
       .expect(400);
 
@@ -67,7 +65,7 @@ describe("POST /api/user/register", () => {
 
   it("should return register FAILED: Email is required (email empty space)", async () => {
     const res = await request(app)
-      .post("/api/user/register")
+      .post("/register")
       .send({ email: " ", password: "12345678" })
       .expect(400);
 
@@ -76,7 +74,7 @@ describe("POST /api/user/register", () => {
 
   it("should return register FAILED: Password is required (password empty string)", async () => {
     const res = await request(app)
-      .post("/api/user/register")
+      .post("/register")
       .send({ email: "student@test.com", password: "" })
       .expect(400);
 
@@ -85,7 +83,7 @@ describe("POST /api/user/register", () => {
 
   it("should return register FAILED: Password is required (password empty space)", async () => {
     const res = await request(app)
-      .post("/api/user/register")
+      .post("/register")
       .send({ email: "student@test.com", password: " " })
       .expect(400);
 
@@ -99,11 +97,11 @@ const mockUserValidator = jest.fn(updateToken);
 // route for user login
 let token = "";
 
-describe("POST /api/user/login", () => {
+describe("POST /login", () => {
   it("should return login SUCCESS", async () => {
     mockUserValidator();
     const res = await request(app)
-      .post("/api/user/login")
+      .post("/login")
       .send({ email: "student@test.com", password: "12345678" })
       .expect(200);
 
@@ -116,7 +114,7 @@ describe("POST /api/user/login", () => {
 
   it("should return login FAILED: Invalid email / password (wrong password)", async () => {
     const res = await request(app)
-      .post("/api/user/login")
+      .post("/login")
       .send({ email: "student@test.com", password: "87654321" })
       .expect(401);
 
@@ -125,7 +123,7 @@ describe("POST /api/user/login", () => {
 
   it("should return login FAILED: Invalid email / password (email does not exist)", async () => {
     const res = await request(app)
-      .post("/api/user/login")
+      .post("/login")
       .send({ email: "bapak@test.com", password: "12345" })
       .expect(401);
 
@@ -134,11 +132,10 @@ describe("POST /api/user/login", () => {
 });
 
 // router for user profile
-
-describe("GET /api/user/profile", () => {
+describe("GET /users/profile", () => {
   it("should return get profile SUCCESS", async () => {
     const res = await request(app)
-      .get(`/api/user/profile`)
+      .get(`/users/profile`)
       .set("access_token", token)
       .expect(200);
 
@@ -149,7 +146,7 @@ describe("GET /api/user/profile", () => {
 
   it("should return get profile details SUCCESS", async () => {
     const res = await request(app)
-      .get(`/api/user/detail/${1}`)
+      .get(`/users/detail/${1}`)
       .set("access_token", token)
       .expect(200);
 
@@ -160,11 +157,10 @@ describe("GET /api/user/profile", () => {
 });
 
 // route for creating an exam
-
-describe("POST /api/exams", () => {
+describe("POST /exams", () => {
   it("should return create exam SUCCESS", async () => {
     const res = await request(app)
-      .post(`/api/exams`)
+      .post(`/exams`)
       .send({
         title: "New Title",
         description: "New Description",
@@ -183,10 +179,9 @@ describe("POST /api/exams", () => {
 });
 
 // route for changing exam to open
-
 it("should return patch exam SUCCESS: Exam status now open/close", async () => {
   const res = await request(app)
-    .patch(`/api/exams/change-visibility/1`)
+    .patch(`/exams/change-visibility/1`)
     .set("access_token", token)
     .expect(200);
 
@@ -194,11 +189,10 @@ it("should return patch exam SUCCESS: Exam status now open/close", async () => {
 });
 
 // route for starting an exam
-
-describe("POST /api/exams/start/:id", () => {
+describe("POST /exams/start/:id", () => {
   it("should return start exam SUCCESS", async () => {
     const res = await request(app)
-      .post(`/api/exams/start/1`)
+      .post(`/exams/start/1`)
       .set("access_token", token)
       .expect(200);
   }, 30000);
@@ -206,7 +200,7 @@ describe("POST /api/exams/start/:id", () => {
 
 // router for answering an exam
 
-// describe("POST /api/exa/:id", () => {
+// describe("POST /exa/:id", () => {
 //   it("should return add Wishlist FAILED - product id does not exist", async () => {
 //     const res = await request(app)
 //       .post(`/pub/wishlist/${999}`)
