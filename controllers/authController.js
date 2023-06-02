@@ -42,6 +42,7 @@ class authController {
     try {
       let tokenKey;
       let email;
+
       if (req.body.token) {
         tokenKey = req.body.token;
         email = req.body.email;
@@ -59,8 +60,8 @@ class authController {
         },
         {
           where: {
-            tokenKey,
-            email,
+            tokenKey: tokenKey,
+            email: email,
           },
         }
       );

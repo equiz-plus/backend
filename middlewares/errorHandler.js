@@ -132,6 +132,11 @@ const errorHandler = (err, req, res, next) => {
     msg = "Already in an exam session";
   }
 
+  if (err.name === "NoQuestion") {
+    code = 400;
+    msg = "This exam doesn't have any questions";
+  }
+
   if (err.name === "MidtransError") {
     code = 400;
     msg = err.ApiResponse.error_messages[0];

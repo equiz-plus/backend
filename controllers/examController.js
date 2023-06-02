@@ -7,6 +7,7 @@ const {
   Answer,
   Grade,
   sequelize,
+  UserAnswer,
 } = require("../models");
 
 // list of exams
@@ -228,6 +229,7 @@ class examController {
   }
 
   // begin EXAM
+  // *user
   static async start(req, res, next) {
     const generateExamTransaction = await sequelize.transaction();
     try {
@@ -239,10 +241,27 @@ class examController {
         where: { UserId: +id },
       });
 
-      if (activeSession) throw { name: "InExam" };
+      console.log(activeSession), "INI ACTIVE SESSION";
+
+      if (activeSession.length !== 0) {
+        // check if time has ended
+        const now = new Date();
+
+        if (activeSession[0].timeStop <= now) {
+          await Session.destroy({
+            where: {
+              UserId: +id,
+            },
+          });
+          throw { name: "TimeOver" };
+        } else throw { name: "InExam" };
+      }
 
       // check if exam exists
       const exam = await Exam.findByPk(+ExamId);
+
+      console.log(exam, "INI EXAM YANG DICARI");
+
       if (!exam) throw { name: "NotFound" };
       if (!exam.isOpen) throw { name: "ExamClose" };
 
@@ -255,10 +274,12 @@ class examController {
         },
       });
 
+      console.log(gradeExist, "INI GRADE USER EXISTING");
+
       if (gradeExist) throw { name: "ExamTaken" };
 
       // if never take, create new grade entry
-      await Grade.create(
+      const newGrade = await Grade.create(
         {
           totalIncorrect: 0,
           totalCorrect: 0,
@@ -271,15 +292,19 @@ class examController {
         }
       );
 
+      console.log(newGrade, "INI GRADE USER BARU JIKA TAK EXISTING");
+
       // generate exam ending time
       let timeStop = new Date().getTime() + exam.duration * 60000;
       timeStop = new Date(timeStop);
+
+      console.log(timeStop, "INI TIMESTOP SESSION");
 
       // get random questions for exam
       const randomQuestions = await Question.findAll(
         {
           where: {
-            CategoryId: exam.CategoryId,
+            CategoryId: +exam.CategoryId,
           },
         },
         {
@@ -287,6 +312,12 @@ class examController {
           limit: exam.totalQuestions,
         }
       );
+
+      console.log(randomQuestions, "INI RANDOM QUESTIONS");
+
+      if (randomQuestions.length <= 0) {
+        throw { name: "NoQuestion" };
+      }
 
       // create exam session
       const session = await Session.create(
@@ -299,6 +330,8 @@ class examController {
           transaction: generateExamTransaction,
         }
       );
+
+      console.log(session, "INI SESSION EXAM YANG DIBUAT BARU");
 
       // menyiapkan questions yang unique utk user
       let questionGroups = [];
@@ -320,6 +353,11 @@ class examController {
 
       res.status(200).json({
         message: `Exam started for user ${id}`,
+        // activeSession: activeSession,
+        // exam: exam,
+        // createdGrade: newGrade,
+        // endTime: timeStop,
+        // createdSession: session,
       });
     } catch (err) {
       await generateExamTransaction.rollback();
@@ -327,183 +365,142 @@ class examController {
     }
   }
 
-  // displaying questions to user FE
-  static async getQuestion(req, res, next) {
-    try {
-      const UserId = +req.user.id;
-      const question = await QuestionGroup.findAll({
-        where: {
-          UserId: UserId,
-        },
-        include: [
-          {
-            model: Question,
-          },
-          {
-            model: Session,
-          },
-        ],
-        order: [["questionNumber", "ASC"]],
-      });
-      res.status(200).json(question);
-    } catch (err) {
-      next(err);
-    }
-  }
-
   // checking on current exam session, in case of power failure
+  // *user
   static async getSession(req, res, next) {
     try {
       const UserId = +req.user.id;
-      const examination = await Session.findOne({
+      const activeSession = await Session.findOne({
         where: {
           UserId: UserId,
         },
+        attributes: {
+          exclude: ["createdAt", "updatedAt"],
+        },
         include: [
-          Exam,
+          {
+            model: Exam,
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          },
           {
             model: QuestionGroup,
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
             include: {
               model: Question,
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
             },
           },
         ],
       });
-      res.status(200).json(examination);
+
+      if (!activeSession) {
+        throw { name: "NotFound" };
+      }
+
+      res.status(200).json(activeSession);
     } catch (err) {
       next(err);
     }
   }
 
-  // user answering the question
+  // user wanted to end the exam early
+  // *user
+  static async endExam(req, res, next) {
+    try {
+      const { id } = req.user;
+
+      // check first if user is already in exam
+      const activeSession = await Session.findAll({
+        where: { UserId: +id },
+      });
+
+      if (activeSession.length === 0) {
+        throw { name: "NotFound" };
+      } else {
+        // execute ending session
+        await Session.destroy({
+          where: {
+            UserId: +id,
+          },
+        });
+      }
+
+      res.status(200).json({
+        message: `User ${id} current exam has ended`,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // answering the question
+  // *user
   static async answer(req, res, next) {
     try {
-      const UserId = +req.user.id;
+      const { id } = req.user;
       const questionNumber = +req.params.questionNumber;
-      const { answer } = req.body;
+      const { AnswerId, QuestionId } = req.body;
 
-      // getting back to previous session
-      const question = await QuestionGroup.findOne({
+      const activeSession = await Session.findOne({
         where: {
-          UserId: UserId,
-          questionNumber: questionNumber,
-        },
-        include: [
-          {
-            model: Question,
-          },
-          {
-            model: Session,
-          },
-        ],
-      });
-
-      if (!question) throw { name: "NotFound" };
-
-      const getGrade = await Grade.findOne({
-        where: {
-          ExamId: question.Session.ExamId,
-          UserId,
+          UserId: +id,
         },
       });
 
-      let totalCorrect = getGrade.totalCorrect;
-      let totalQuestions = getGrade.totalQuestions;
-
-      let isCorrect = false;
-
-      if (question.Question.answer === "1")
-        correctAnswer = question.Question.option1;
-      if (question.Question.answer === "2")
-        correctAnswer = question.Question.option2;
-      if (question.Question.answer === "3")
-        correctAnswer = question.Question.option3;
-      if (question.Question.answer === "4")
-        correctAnswer = question.Question.option4;
-
-      if (answer === question.Question.answer) {
-        isCorrect = true;
+      if (!activeSession) {
+        throw { name: "NotFound" };
       }
 
-      if (new Date(question.Session.timeStop) < new Date()) {
-        await QuestionGroup.destroy({
-          where: {
-            UserId,
-          },
-        });
-        throw { name: "TimeOver" };
-      }
-
-      const answerExsists = await Answer.findOne({
+      const hasAnswered = await UserAnswer.findOne({
         where: {
-          QuestionNumber: questionNumber,
-          UserId,
+          QuestionId: +QuestionId,
+          ExamId: +activeSession.ExamId,
+          UserId: +id,
+          questionNumber: +questionNumber,
         },
       });
 
-      if (!answerExsists) {
-        await Answer.create({
-          answer,
-          QuestionNumber: questionNumber,
-          isCorrect,
-          ExamId: question.Session.ExamId,
-          QuestionId: question.QuestionId,
-          UserId,
-        });
-
-        if (isCorrect) {
-          totalCorrect++;
-        }
-      } else {
-        if (answerExsists.isCorrect) {
-          if (!isCorrect) {
-            totalCorrect--;
-          }
-        } else {
-          if (isCorrect) {
-            totalCorrect++;
-          }
-        }
-        await Answer.update(
+      if (hasAnswered) {
+        const updateAnswer = await UserAnswer.update(
           {
-            answer,
-            isCorrect,
+            questionNumber: questionNumber,
+            QuestionId: QuestionId,
+            AnswerId: AnswerId,
+            ExamId: activeSession.ExamId,
+            UserId: id,
           },
           {
             where: {
-              QuestionNumber: questionNumber,
-              UserId,
+              questionNumber: questionNumber,
             },
           }
         );
+
+        res.status(200).json({
+          changedAnswer: updateAnswer,
+        });
+      } else {
+        const userAnswer = await UserAnswer.create({
+          questionNumber: questionNumber,
+          QuestionId: QuestionId,
+          AnswerId: AnswerId,
+          ExamId: activeSession.ExamId,
+          UserId: id,
+        });
+        res.status(201).json(userAnswer);
       }
-
-      let finalGrade = (totalCorrect / totalQuestions) * 100;
-
-      await Grade.update(
-        {
-          totalCorrect,
-          grade: finalGrade,
-        },
-        {
-          where: {
-            ExamId: question.Session.ExamId,
-            UserId,
-          },
-        }
-      );
-
-      res.status(200).json({
-        number: questionNumber,
-        question: question.Question.question,
-        yourAnswer: answer,
-        ExamId: question.Session.ExamId,
-      });
     } catch (err) {
       next(err);
     }
   }
 
+  // show all my previous answers
   static async myAnswer(req, res, next) {
     try {
       const ExamId = +req.params.examId;

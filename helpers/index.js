@@ -1,15 +1,12 @@
-const { hashPassword, comparePassword } = require("./bcrypt")
-const { usernameGenerator, pinGenerator, tokenKey } = require("./generator")
-const { encrypt, decrypt } = require("./jwt")
-
-
+const { hashPassword, comparePassword } = require("./bcrypt");
+const { usernameGenerator, pinGenerator, tokenKey } = require("./generator");
+const { encrypt, decrypt } = require("./jwt");
 
 module.exports = {
-    hashPassword,
-    comparePassword,
-    encrypt,
-    decrypt,
-    pinGenerator,
-    usernameGenerator,
-    tokenKey
-}
+  hashPassword,
+  comparePassword,
+  encrypt,
+  decrypt,
+  usernameGenerator,
+  tokenKey,
+};

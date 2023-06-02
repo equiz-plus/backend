@@ -12,7 +12,7 @@ router.delete("/:id", isAdmin, examController.delete);
 
 router.get("/list", examController.examListsUser);
 router.get("/session", examController.getSession);
-router.get("/question", examController.getQuestion);
+router.post("/end", examController.endExam);
 router.get("/detail/:id", examController.examDetail);
 router.patch(
   "/change-visibility/:id",
