@@ -8,6 +8,7 @@ const {
   Grade,
   sequelize,
   UserAnswer,
+  Category,
 } = require("../models");
 
 // list of exams
@@ -15,10 +16,15 @@ const {
 class examController {
   static async examLists(req, res, next) {
     try {
-      const { search } = req.query;
+      const { page, CategoryId, display, sort, search } = req.query;
 
       let whereCondition = {};
+      let whereCategory = {};
 
+      // set query length
+      let pagination = +display;
+
+      // set search
       if (search) {
         whereCondition = {
           title: {
@@ -27,13 +33,65 @@ class examController {
         };
       }
 
-      const { count, rows } = await Exam.findAndCountAll({
+      // set sort
+      let sortBy = sort;
+      if (!sortBy) {
+        sortBy = ["name", "ASC"];
+      } else {
+        sortBy = ["name", "DESC"];
+      }
+
+      // if filter is not a number or undefined
+      if (CategoryId && !isNaN(CategoryId)) {
+        whereCategory = { CategoryId: +CategoryId };
+      } else {
+        whereCategory = {};
+      }
+
+      // check if such category ID exist
+      const validCategory = await Category.findOne({
+        attributes: ["id"],
+        where: whereCategory,
+      });
+
+      console.log(validCategory, "INI VALID CATEGORY");
+
+      if (!validCategory) {
+        whereCategory = {};
+      }
+
+      // check if page number could be out of range
+      const examCount = await Exam.count({
         where: whereCondition,
       });
-      if (search && count <= 0) throw { name: "NotFound" };
+
+      console.log(examCount);
+
+      // page number correction
+      let autoPage = 1;
+      if (page > examCount / pagination || page < 1) {
+        autoPage = 1;
+      } else {
+        autoPage = page;
+      }
+
+      const exams = await Exam.findAndCountAll({
+        include: [
+          {
+            model: Category,
+            where: whereCategory,
+          },
+        ],
+        where: whereCondition,
+        order: [sortBy],
+        offset: (+autoPage - 1) * pagination || 0,
+        limit: pagination || 25,
+      });
+
       res.status(200).json({
-        count,
-        exams: rows,
+        currentPage: autoPage,
+        totalPages: Math.ceil(products.count / pagination),
+        data: exams.rows,
       });
     } catch (err) {
       next(err);
@@ -447,26 +505,73 @@ class examController {
       const questionNumber = +req.params.questionNumber;
       const { AnswerId, QuestionId } = req.body;
 
+      // check if user is in an active session
       const activeSession = await Session.findOne({
+        attributes: ["id", "ExamId", "UserId"],
         where: {
           UserId: +id,
         },
       });
+
+      console.log(activeSession, "INI ACTIVE SESSION");
 
       if (!activeSession) {
         throw { name: "NotFound" };
       }
 
-      const hasAnswered = await UserAnswer.findOne({
+      // check if question exists on that path
+      const question = await QuestionGroup.findOne({
+        attributes: ["id"],
         where: {
-          QuestionId: +QuestionId,
-          ExamId: +activeSession.ExamId,
-          UserId: +id,
-          questionNumber: +questionNumber,
+          questionNumber,
+          QuestionId,
+          SessionId: activeSession.id,
         },
       });
 
-      if (hasAnswered) {
+      console.log(question, "INI QUESTION");
+
+      if (!question) {
+        throw { name: "NotFound" };
+      }
+
+      // check if answer exist for that question
+      const answer = await Answer.findOne({
+        attributes: ["id"],
+        where: {
+          QuestionId,
+          id: AnswerId,
+        },
+      });
+
+      console.log(answer, "INI ANSWER");
+
+      if (!answer) throw { name: "NotFound" };
+
+      // check if user has answered this specific question
+      const findUserAnswer = await UserAnswer.findOne({
+        attributes: ["id"],
+        where: {
+          questionNumber,
+          QuestionId,
+          ExamId: activeSession.ExamId,
+          UserId: activeSession.UserId,
+        },
+      });
+
+      // if user hasn't answer this specific question
+      if (!findUserAnswer) {
+        const userAnswer = await UserAnswer.create({
+          questionNumber: questionNumber,
+          QuestionId: QuestionId,
+          AnswerId: AnswerId,
+          ExamId: activeSession.ExamId,
+          UserId: id,
+        });
+
+        res.status(201).json(userAnswer);
+      } else {
+        // else update the existing answer
         const updateAnswer = await UserAnswer.update(
           {
             questionNumber: questionNumber,
@@ -485,15 +590,6 @@ class examController {
         res.status(200).json({
           changedAnswer: updateAnswer,
         });
-      } else {
-        const userAnswer = await UserAnswer.create({
-          questionNumber: questionNumber,
-          QuestionId: QuestionId,
-          AnswerId: AnswerId,
-          ExamId: activeSession.ExamId,
-          UserId: id,
-        });
-        res.status(201).json(userAnswer);
       }
     } catch (err) {
       next(err);
@@ -501,26 +597,42 @@ class examController {
   }
 
   // show all my previous answers
+  // *user
   static async myAnswer(req, res, next) {
     try {
       const ExamId = +req.params.examId;
-      const UserId = +req.user.id;
-      const answers = await Answer.findAll({
+      const { id } = req.user;
+      const myAnswer = await UserAnswer.findAll({
+        attributes: {
+          exclude: ["createdAt", "updatedAt"],
+        },
         where: {
-          UserId: UserId,
+          UserId: +id,
           ExamId: ExamId,
         },
-        include: {
-          model: Question,
-        },
-        order: [["QuestionNumber", "ASC"]],
+        include: [
+          {
+            model: Question,
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+            model: Answer,
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          },
+        ],
+        order: [["questionNumber", "ASC"]],
       });
-      res.status(200).json(answers);
+
+      res.status(200).json(myAnswer);
     } catch (err) {
       next(err);
     }
   }
 
+  // show my answer details
+  // *user
   static async myAnswerDetail(req, res, next) {
     try {
       const QuestionNumber = +req.params.questionNumber;

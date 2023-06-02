@@ -56,25 +56,25 @@ class gradeController {
     }
   }
 
-  //   static async delete(req, res, next) {
-  //     try {
-  //       const { id } = req.params;
+  static async delete(req, res, next) {
+    try {
+      const { id } = req.params;
 
-  //       const deleted = await Grade.destroy({
-  //         where: {
-  //           id: +id,
-  //         },
-  //       });
+      const deleted = await Grade.destroy({
+        where: {
+          id: +id,
+        },
+      });
 
-  //       if (deleted <= 0) throw { name: "NotFound" };
+      if (deleted <= 0) throw { name: "NotFound" };
 
-  //       res.status(200).json({
-  //         message: `Grade with id ${id} has been deleted`,
-  //       });
-  //     } catch (err) {
-  //       next(err);
-  //     }
-  //   }
+      res.status(200).json({
+        message: `Grade with id ${id} has been deleted`,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 module.exports = gradeController;
