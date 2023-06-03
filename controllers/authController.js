@@ -29,6 +29,7 @@ class authController {
       sendEmailConfirmation(createdUser.email, createdUser.tokenKey);
 
       res.status(201).json({
+        email: email,
         message: "User was registered successfully! Please check your email",
       });
     } catch (err) {
@@ -69,6 +70,7 @@ class authController {
       if (isValidToken <= 0) throw { name: "InvalidVerificationInfo" };
 
       res.status(200).json({
+        email: email,
         message: "Your account has been activated",
       });
     } catch (err) {

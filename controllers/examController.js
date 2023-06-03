@@ -12,64 +12,67 @@ const {
 } = require("../models");
 
 // list of exams
+// !!convert to pagination version
 // *admin
 class examController {
   static async examLists(req, res, next) {
     try {
-      const { page, CategoryId, display, sort, search } = req.query;
+      const { page, CategoryId, displayLength, sort, search } = req.query;
 
       let whereCondition = {};
       let whereCategory = {};
 
       // set query length
-      let pagination = +display;
+      let pagination = +displayLength;
+      if (!displayLength || isNaN(displayLength)) {
+        pagination = 25;
+      }
 
       // set search
-      if (search) {
-        whereCondition = {
-          title: {
-            [Op.iLike]: `%${search}%`,
-          },
-        };
-      }
+      // if (search) {
+      //   whereCondition = {
+      //     title: {
+      //       [Op.iLike]: `%${search}%`,
+      //     },
+      //   };
+      // }
 
       // set sort
-      let sortBy = sort;
-      if (!sortBy) {
-        sortBy = ["name", "ASC"];
-      } else {
-        sortBy = ["name", "DESC"];
-      }
+      // let sortBy = sort;
+      // if (!sortBy) {
+      //   sortBy = ["name", "ASC"];
+      // } else {
+      //   sortBy = ["name", "DESC"];
+      // }
 
       // if filter is not a number or undefined
-      if (CategoryId && !isNaN(CategoryId)) {
-        whereCategory = { CategoryId: +CategoryId };
-      } else {
-        whereCategory = {};
-      }
+      // if (CategoryId && !isNaN(CategoryId)) {
+      //   whereCategory = { CategoryId: +CategoryId };
+      // } else {
+      //   whereCategory = {};
+      // }
 
       // check if such category ID exist
-      const validCategory = await Category.findOne({
-        attributes: ["id"],
-        where: whereCategory,
-      });
+      // const validCategory = await Category.findOne({
+      //   attributes: ["id"],
+      //   where: whereCategory,
+      // });
 
-      console.log(validCategory, "INI VALID CATEGORY");
+      // console.log(validCategory, "INI VALID CATEGORY");
 
-      if (!validCategory) {
-        whereCategory = {};
-      }
+      // if (!validCategory) {
+      //   whereCategory = {};
+      // }
 
       // check if page number could be out of range
-      const examCount = await Exam.count({
-        where: whereCondition,
-      });
-
-      console.log(examCount);
+      const examCount = await Exam.count();
+      const totalPages = Math.ceil(examCount / pagination);
 
       // page number correction
       let autoPage = 1;
-      if (page > examCount / pagination || page < 1) {
+      if (page > examCount / displayLength) {
+        autoPage = examCount / displayLength;
+      } else if (page < 1 || isNaN(page)) {
         autoPage = 1;
       } else {
         autoPage = page;
@@ -79,19 +82,18 @@ class examController {
         include: [
           {
             model: Category,
-            where: whereCategory,
           },
         ],
         where: whereCondition,
-        order: [sortBy],
+        // order: [sortBy],
         offset: (+autoPage - 1) * pagination || 0,
-        limit: pagination || 25,
+        limit: pagination,
       });
 
       res.status(200).json({
         currentPage: autoPage,
-        totalPages: Math.ceil(products.count / pagination),
-        data: exams.rows,
+        totalPages: totalPages,
+        exams: exams.rows,
       });
     } catch (err) {
       next(err);
@@ -253,6 +255,7 @@ class examController {
   }
 
   // list of exams. Only shows open exam.
+  // !!convert to pagination version
   // *user
   static async examListsUser(req, res, next) {
     try {
@@ -292,71 +295,52 @@ class examController {
     const generateExamTransaction = await sequelize.transaction();
     try {
       const { id } = req.user;
-      const ExamId = req.params.id;
+      const { ExamId } = req.params;
 
       // check first if user is already in exam
       const activeSession = await Session.findAll({
+        attributes: ["id"],
         where: { UserId: +id },
       });
 
-      console.log(activeSession), "INI ACTIVE SESSION";
-
       if (activeSession.length !== 0) {
-        // check if time has ended
-        const now = new Date();
-
-        if (activeSession[0].timeStop <= now) {
-          await Session.destroy({
-            where: {
-              UserId: +id,
-            },
-          });
-          throw { name: "TimeOver" };
-        } else throw { name: "InExam" };
+        throw { name: "InExam" };
       }
 
       // check if exam exists
       const exam = await Exam.findByPk(+ExamId);
 
-      console.log(exam, "INI EXAM YANG DICARI");
-
       if (!exam) throw { name: "NotFound" };
       if (!exam.isOpen) throw { name: "ExamClose" };
 
-      // initializing exam session
       // ensure student never attends exam
       const gradeExist = await Grade.findOne({
+        attributes: ["id"],
         where: {
           ExamId,
-          UserId: id,
+          UserId: +id,
         },
       });
-
-      console.log(gradeExist, "INI GRADE USER EXISTING");
 
       if (gradeExist) throw { name: "ExamTaken" };
 
       // if never take, create new grade entry
       const newGrade = await Grade.create(
         {
-          totalIncorrect: 0,
+          questionsCount: exam.totalQuestions,
           totalCorrect: 0,
           grade: 0,
           ExamId,
-          UserId: id,
+          UserId: +id,
         },
         {
           transaction: generateExamTransaction,
         }
       );
 
-      console.log(newGrade, "INI GRADE USER BARU JIKA TAK EXISTING");
-
       // generate exam ending time
       let timeStop = new Date().getTime() + exam.duration * 60000;
       timeStop = new Date(timeStop);
-
-      console.log(timeStop, "INI TIMESTOP SESSION");
 
       // get random questions for exam
       const randomQuestions = await Question.findAll(
@@ -371,8 +355,6 @@ class examController {
         }
       );
 
-      console.log(randomQuestions, "INI RANDOM QUESTIONS");
-
       if (randomQuestions.length <= 0) {
         throw { name: "NoQuestion" };
       }
@@ -382,14 +364,12 @@ class examController {
         {
           timeStop,
           ExamId,
-          UserId: id,
+          UserId: +id,
         },
         {
           transaction: generateExamTransaction,
         }
       );
-
-      console.log(session, "INI SESSION EXAM YANG DIBUAT BARU");
 
       // menyiapkan questions yang unique utk user
       let questionGroups = [];
@@ -423,14 +403,14 @@ class examController {
     }
   }
 
-  // checking on current exam session, in case of power failure
+  // get back on current exam session, in case of power failure
   // *user
   static async getSession(req, res, next) {
     try {
-      const UserId = +req.user.id;
+      const { id } = req.user;
       const activeSession = await Session.findOne({
         where: {
-          UserId: UserId,
+          UserId: +id,
         },
         attributes: {
           exclude: ["createdAt", "updatedAt"],
@@ -441,23 +421,58 @@ class examController {
             attributes: {
               exclude: ["createdAt", "updatedAt"],
             },
+            include: [
+              {
+                model: UserAnswer,
+                attributes: {
+                  exclude: ["createdAt", "updatedAt"],
+                },
+              },
+            ],
           },
           {
             model: QuestionGroup,
             attributes: {
               exclude: ["createdAt", "updatedAt"],
             },
-            include: {
-              model: Question,
-              attributes: {
-                exclude: ["createdAt", "updatedAt"],
+            include: [
+              {
+                model: Question,
+                attributes: {
+                  exclude: ["createdAt", "updatedAt"],
+                },
+                include: [
+                  {
+                    model: Answer,
+                    attributes: {
+                      exclude: [
+                        "createdAt",
+                        "updatedAt",
+                        "isCorrect",
+                        "explanation",
+                      ],
+                    },
+                  },
+                ],
               },
-            },
+            ],
           },
         ],
       });
 
-      if (!activeSession) {
+      if (activeSession) {
+        // has the session expired yet?
+        const now = new Date();
+
+        if (activeSession.timeStop < now) {
+          await Session.destroy({
+            where: {
+              UserId: +id,
+            },
+          });
+          throw { name: "TimeOver" };
+        }
+      } else {
         throw { name: "NotFound" };
       }
 
@@ -507,85 +522,146 @@ class examController {
 
       // check if user is in an active session
       const activeSession = await Session.findOne({
-        attributes: ["id", "ExamId", "UserId"],
+        attributes: ["id", "ExamId", "UserId", "timeStop"],
         where: {
           UserId: +id,
         },
       });
 
-      console.log(activeSession, "INI ACTIVE SESSION");
+      if (activeSession) {
+        // has the session expired yet?
+        const now = new Date();
 
-      if (!activeSession) {
+        if (activeSession.timeStop < now) {
+          await Session.destroy({
+            where: {
+              UserId: +id,
+            },
+          });
+          throw { name: "TimeOver" };
+        }
+      } else {
         throw { name: "NotFound" };
       }
 
-      // check if question exists on that path
+      // check if QuestionGroups exists on that path
       const question = await QuestionGroup.findOne({
         attributes: ["id"],
         where: {
           questionNumber,
           QuestionId,
-          SessionId: activeSession.id,
+          SessionId: +activeSession.id,
         },
       });
-
-      console.log(question, "INI QUESTION");
 
       if (!question) {
         throw { name: "NotFound" };
       }
 
-      // check if answer exist for that question
+      // check if answer bank has answers exist for that question
       const answer = await Answer.findOne({
         attributes: ["id"],
         where: {
           QuestionId,
-          id: AnswerId,
+          id: +AnswerId,
         },
       });
 
-      console.log(answer, "INI ANSWER");
-
       if (!answer) throw { name: "NotFound" };
+
+      // check the correct answer for this question
+      const correctAnswer = await Answer.findOne({
+        attributes: ["id"],
+        where: {
+          QuestionId,
+          isCorrect: true,
+        },
+      });
 
       // check if user has answered this specific question
       const findUserAnswer = await UserAnswer.findOne({
-        attributes: ["id"],
+        attributes: ["AnswerId"],
         where: {
           questionNumber,
           QuestionId,
-          ExamId: activeSession.ExamId,
-          UserId: activeSession.UserId,
+          ExamId: +activeSession.ExamId,
+          UserId: +activeSession.UserId,
         },
       });
 
       // if user hasn't answer this specific question
       if (!findUserAnswer) {
+        // then create new user answer entry
         const userAnswer = await UserAnswer.create({
-          questionNumber: questionNumber,
-          QuestionId: QuestionId,
-          AnswerId: AnswerId,
-          ExamId: activeSession.ExamId,
-          UserId: id,
+          questionNumber: +questionNumber,
+          QuestionId: +QuestionId,
+          AnswerId: +AnswerId,
+          ExamId: +activeSession.ExamId,
+          UserId: +id,
         });
+
+        // compare correct answer id with user answer id
+        if (+userAnswer.AnswerId === +correctAnswer.id) {
+          await Grade.increment(
+            {
+              totalCorrect: 1,
+            },
+            {
+              where: {
+                UserId: +id,
+                ExamId: +activeSession.ExamId,
+              },
+            }
+          );
+        }
 
         res.status(201).json(userAnswer);
       } else {
-        // else update the existing answer
+        // check if previous answer is correct
+        if (+findUserAnswer.AnswerId === correctAnswer.id) {
+          await Grade.decrement(
+            {
+              totalCorrect: 1,
+            },
+            {
+              where: {
+                UserId: +id,
+                ExamId: +activeSession.ExamId,
+              },
+            }
+          );
+        }
+
+        // then update the existing answer
         const updateAnswer = await UserAnswer.update(
           {
-            questionNumber: questionNumber,
-            QuestionId: QuestionId,
-            AnswerId: AnswerId,
-            ExamId: activeSession.ExamId,
-            UserId: id,
+            questionNumber: +questionNumber,
+            QuestionId: +QuestionId,
+            AnswerId: +AnswerId,
+            ExamId: +activeSession.ExamId,
+            UserId: +id,
           },
           {
             where: {
-              questionNumber: questionNumber,
+              questionNumber: +questionNumber,
             },
           }
         );
+
+        // finally check the new answer
+        if (+AnswerId === correctAnswer.id) {
+          await Grade.increment(
+            {
+              totalCorrect: 1,
+            },
+            {
+              where: {
+                UserId: +id,
+                ExamId: +activeSession.ExamId,
+              },
+            }
+          );
+        }
 
         res.status(200).json({
           changedAnswer: updateAnswer,
@@ -600,15 +676,43 @@ class examController {
   // *user
   static async myAnswer(req, res, next) {
     try {
-      const ExamId = +req.params.examId;
+      const { ExamId } = req.params;
       const { id } = req.user;
-      const myAnswer = await UserAnswer.findAll({
+      const { page, displayLength } = req.query;
+
+      //pagination
+      let pagination = +displayLength;
+      if (!pagination || isNaN(pagination)) {
+        pagination = 25;
+      }
+
+      // check if page number could be out of range
+      const answerCount = await UserAnswer.count({
+        where: {
+          UserId: +id,
+          ExamId: +ExamId,
+        },
+      });
+
+      const totalPages = Math.ceil(answerCount / pagination);
+
+      // page number correction
+      let autoPage = 1;
+      if (page > answerCount / pagination) {
+        autoPage = answerCount / pagination;
+      } else if (page < 1 || isNaN(page)) {
+        autoPage = 1;
+      } else {
+        autoPage = page;
+      }
+
+      const myAnswer = await UserAnswer.findAndCountAll({
         attributes: {
           exclude: ["createdAt", "updatedAt"],
         },
         where: {
           UserId: +id,
-          ExamId: ExamId,
+          ExamId: +ExamId,
         },
         include: [
           {
@@ -616,6 +720,8 @@ class examController {
             attributes: {
               exclude: ["createdAt", "updatedAt"],
             },
+          },
+          {
             model: Answer,
             attributes: {
               exclude: ["createdAt", "updatedAt"],
@@ -623,30 +729,20 @@ class examController {
           },
         ],
         order: [["questionNumber", "ASC"]],
+        offset: (+autoPage - 1) * pagination || 0,
+        limit: pagination,
       });
 
-      res.status(200).json(myAnswer);
-    } catch (err) {
-      next(err);
-    }
-  }
+      if (myAnswer.length <= 0) {
+        throw { name: "NotFound" };
+      }
 
-  // show my answer details
-  // *user
-  static async myAnswerDetail(req, res, next) {
-    try {
-      const QuestionNumber = +req.params.questionNumber;
-      const UserId = +req.user.id;
-      const answers = await Answer.findOne({
-        where: {
-          UserId: UserId,
-          QuestionNumber: QuestionNumber,
-        },
-        include: {
-          model: Question,
-        },
+      res.status(200).json({
+        currentPage: autoPage,
+        totalPages: totalPages,
+        totalRows: myAnswer.count,
+        answers: myAnswer.rows,
       });
-      res.status(200).json(answers);
     } catch (err) {
       next(err);
     }

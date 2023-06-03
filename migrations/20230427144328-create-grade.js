@@ -9,7 +9,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      totalIncorrect: {
+      questionsCount: {
         type: Sequelize.INTEGER,
       },
       totalCorrect: {

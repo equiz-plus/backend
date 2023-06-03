@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Grade.init(
     {
-      totalIncorrect: DataTypes.INTEGER,
+      questionsCount: DataTypes.INTEGER,
       totalCorrect: DataTypes.INTEGER,
       grade: DataTypes.FLOAT,
       ExamId: DataTypes.INTEGER,

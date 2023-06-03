@@ -1,22 +1,22 @@
 [
   {
     "question": "Whistler was the codename of this Microsoft Operating System.",
-    "CategoryId": 1
+    "CategoryId": 4
   },
   {
     "question": "Moore's law originally stated that the number of transistors on a microprocessor chip would double every...",
-    "CategoryId": 1
+    "CategoryId": 4
   },
   {
     "question": "When was the programming language #C released?",
-    "CategoryId": 1
+    "CategoryId": 4
   },
   {
     "question": "What five letter word is the motto of the IBM Computer company?",
-    "CategoryId": 1
+    "CategoryId": 4
   },
   {
     "question": "All of the following programs are classified as raster graphics editors EXCEPT:",
-    "CategoryId": 1
+    "CategoryId": 4
   }
 ]
