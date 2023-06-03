@@ -1,37 +1,82 @@
-const { Exam, Question, Category } = require("../models");
+const { Op } = require("sequelize");
+const { Category } = require("../models");
 
 class categoryController {
   static async categoryList(req, res, next) {
     try {
-      const { search } = req.query;
+      const { page, displayLength, order, search } = req.query;
 
       let whereCondition = {};
 
+      // set query length
+      let pagination = +displayLength;
+      if (!displayLength || isNaN(displayLength)) {
+        pagination = 10;
+      }
+
+      // set search
       if (search) {
-        whereCondition = {
-          title: {
-            [Op.iLike]: `%${search}%`,
-          },
+        whereCondition.name = {
+          [Op.iLike]: `%${search}%`,
         };
       }
 
-      const { count, rows } = await Exam.findAndCountAll({
+      // set sort
+      let sortBy = "id";
+      let sortOrder = order;
+
+      if (!sortOrder || sortOrder !== "ASC") {
+        sortOrder = "DESC";
+      } else {
+        sortOrder = "ASC";
+      }
+
+      let autoSort = [`${sortBy}`, `${sortOrder}`];
+
+      console.log(autoSort, "INI SORTINGAN");
+
+      // check if page number could be out of range
+      const categoriesCount = await Category.count({
         where: whereCondition,
-        include: [
-          {
-            model: Exam,
-          },
-          {
-            model: Question,
-          },
-        ],
       });
 
-      if (search && count <= 0) throw { name: "NotFound" };
+      console.log(categoriesCount, "INI TOTAL QUESTIONS YANG DITEMUKAN");
+      console.log(page, "INI PAGE SEBELUM CORRECTION");
+
+      // page number correction
+      const totalPages = Math.ceil(categoriesCount / pagination);
+      console.log(totalPages, "INI TOTAL PAGES");
+
+      let autoPage = 1;
+      if (page > totalPages || totalPages === 0) {
+        autoPage = totalPages;
+      } else if (page < 1 || isNaN(page)) {
+        autoPage = 1;
+      } else {
+        autoPage = +page;
+      }
+
+      console.log(autoPage, "INI FINAL AUTOPAGE");
+
+      // offset correction
+      let finalOffset = (+autoPage - 1) * pagination;
+      if (finalOffset < 0) {
+        finalOffset = 0;
+      }
+
+      // ini final query
+      const categoriesData = await Category.findAndCountAll({
+        where: whereCondition,
+        order: [autoSort],
+        offset: finalOffset,
+        limit: pagination,
+      });
 
       res.status(200).json({
-        count,
-        data: rows,
+        currentPage: autoPage,
+        totalPages: totalPages,
+        totalCategories: categoriesData.count,
+        categories: categoriesData.rows,
       });
     } catch (err) {
       next(err);

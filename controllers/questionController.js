@@ -2,6 +2,8 @@ const { Op } = require("sequelize");
 const { Question, Answer, Category, sequelize } = require("../models");
 
 class questionController {
+  // show all questions
+  // *admin
   static async index(req, res, next) {
     try {
       const { page, CategoryId, displayLength, order, search } = req.query;
@@ -77,6 +79,9 @@ class questionController {
           {
             model: Category,
           },
+          {
+            model: Answer,
+          },
         ],
         where: whereCondition,
         order: [autoSort],
@@ -95,6 +100,8 @@ class questionController {
     }
   }
 
+  // create questions and tags
+  // *admin
   static async create(req, res, next) {
     const generateQuestionTransaction = await sequelize.transaction();
     try {
@@ -123,12 +130,14 @@ class questionController {
     }
   }
 
+  // delete questions, also delete tags automatically
+  // *admin
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
       const question = await Question.destroy({
         where: {
-          id,
+          id: +id,
         },
       });
 
@@ -142,13 +151,91 @@ class questionController {
     }
   }
 
+  // shows answer list
+  // *admin
   static async answerList(req, res, next) {
     try {
-      const answer = await Answer.findAll();
+      const { page, QuestionId, displayLength, order, search } = req.query;
 
-      console.log(answer, "INI ANSWER");
+      let whereCondition = {};
 
-      res.status(200).json(answer);
+      // set query length
+      let pagination = +displayLength;
+      if (!displayLength || isNaN(displayLength)) {
+        pagination = 10;
+      }
+
+      // set search
+      if (search) {
+        whereCondition.answer = {
+          [Op.iLike]: `%${search}%`,
+        };
+      }
+
+      // set sort
+      let sortBy = "id";
+      let sortOrder = order;
+
+      if (!sortOrder || sortOrder !== "ASC") {
+        sortOrder = "DESC";
+      } else {
+        sortOrder = "ASC";
+      }
+
+      let autoSort = [`${sortBy}`, `${sortOrder}`];
+
+      console.log(autoSort, "INI SORTINGAN");
+
+      // check if QuestionId input is correct
+      if (QuestionId || !isNaN(QuestionId)) {
+        whereCondition.QuestionId = +QuestionId;
+      }
+
+      console.log(whereCondition, "INI WHERE FINAL");
+
+      // check if page number could be out of range
+      const answersCount = await Answer.count({
+        where: whereCondition,
+      });
+
+      console.log(answersCount, "INI TOTAL ANSWERS YANG DITEMUKAN");
+      console.log(page, "INI PAGE SEBELUM CORRECTION");
+
+      // page number correction
+      const totalPages = Math.ceil(answersCount / pagination);
+      console.log(totalPages, "INI TOTAL PAGES");
+
+      let autoPage = 1;
+      if (page > totalPages || totalPages === 0) {
+        autoPage = totalPages;
+      } else if (page < 1 || isNaN(page)) {
+        autoPage = 1;
+      } else {
+        autoPage = +page;
+      }
+
+      console.log(autoPage, "INI FINAL AUTOPAGE");
+
+      // offset correction
+      let finalOffset = (+autoPage - 1) * pagination;
+      if (finalOffset < 0) {
+        finalOffset = 0;
+      }
+
+      // ini final query
+      const answersData = await Answer.findAndCountAll({
+        where: whereCondition,
+        order: [autoSort],
+        offset: finalOffset,
+        limit: pagination,
+      });
+
+      res.status(200).json({
+        currentPage: autoPage,
+        totalPages: totalPages,
+        totalAnswers: answersData.count,
+        answers: answersData.rows,
+      });
     } catch (err) {
       next(err);
     }
