@@ -13,7 +13,7 @@ class examController {
 
       // set query length
       let pagination = +displayLength;
-      if (!displayLength || isNaN(displayLength)) {
+      if (!displayLength || isNaN(displayLength) || displayLength < 1) {
         pagination = 10;
       }
 

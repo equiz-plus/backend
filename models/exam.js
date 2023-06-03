@@ -79,6 +79,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       isOpen: DataTypes.BOOLEAN,
+      OrganizationId: DataTypes.INTEGER,
     },
     {
       sequelize,

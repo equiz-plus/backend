@@ -74,6 +74,7 @@ module.exports = (sequelize, DataTypes) => {
       role: DataTypes.STRING,
       isPremium: DataTypes.BOOLEAN,
       tokenKey: DataTypes.STRING,
+      premiumExpiry: DataTypes.DATE,
     },
     {
       sequelize,

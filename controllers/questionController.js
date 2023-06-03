@@ -12,15 +12,8 @@ class questionController {
 
       // set query length
       let pagination = +displayLength;
-      if (!displayLength || isNaN(displayLength)) {
+      if (!displayLength || isNaN(displayLength) || displayLength < 1) {
         pagination = 10;
-      }
-
-      // set search
-      if (search) {
-        whereCondition.question = {
-          [Op.iLike]: `%${search}%`,
-        };
       }
 
       // set sort
@@ -38,8 +31,17 @@ class questionController {
       console.log(autoSort, "INI SORTINGAN");
 
       // check if CategoryId input is correct
-      if (CategoryId || !isNaN(CategoryId)) {
+      if (!CategoryId || isNaN(CategoryId)) {
+        whereCondition = {};
+      } else {
         whereCondition.CategoryId = +CategoryId;
+      }
+
+      // set search
+      if (search) {
+        whereCondition.question = {
+          [Op.iLike]: `%${search}%`,
+        };
       }
 
       console.log(whereCondition, "INI WHERE FINAL");
@@ -92,8 +94,8 @@ class questionController {
       res.status(200).json({
         currentPage: autoPage,
         totalPages: totalPages,
-        totalExams: questionsData.count,
-        exams: questionsData.rows,
+        totalQuestions: questionsData.count,
+        questions: questionsData.rows,
       });
     } catch (err) {
       next(err);
@@ -130,7 +132,7 @@ class questionController {
     }
   }
 
-  // delete questions, also delete tags automatically
+  // delete questions, also delete answers automatically
   // *admin
   static async delete(req, res, next) {
     try {
@@ -161,15 +163,8 @@ class questionController {
 
       // set query length
       let pagination = +displayLength;
-      if (!displayLength || isNaN(displayLength)) {
+      if (!displayLength || isNaN(displayLength || displayLength < 1)) {
         pagination = 10;
-      }
-
-      // set search
-      if (search) {
-        whereCondition.answer = {
-          [Op.iLike]: `%${search}%`,
-        };
       }
 
       // set sort
@@ -187,8 +182,17 @@ class questionController {
       console.log(autoSort, "INI SORTINGAN");
 
       // check if QuestionId input is correct
-      if (QuestionId || !isNaN(QuestionId)) {
+      if (!QuestionId || isNaN(QuestionId)) {
+        whereCondition = {};
+      } else {
         whereCondition.QuestionId = +QuestionId;
+      }
+
+      // set search
+      if (search) {
+        whereCondition.answer = {
+          [Op.iLike]: `%${search}%`,
+        };
       }
 
       console.log(whereCondition, "INI WHERE FINAL");

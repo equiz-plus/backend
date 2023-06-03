@@ -93,7 +93,7 @@ class userExamController {
         }
       );
 
-      // menyiapkan questions yang unique utk user
+      // prepare unique questions order for user
       let questionGroups = [];
       let questionNumber = 1;
       randomQuestions.forEach((el) => {
@@ -187,12 +187,14 @@ class userExamController {
         const now = new Date();
 
         if (activeSession.timeStop < now) {
+          // execute ending session
           await Session.destroy({
             where: {
               UserId: +id,
             },
           });
 
+          // calculate use score immediately
           const userGrade = await Grade.findOne({
             attributes: ["id", "questionsCount", "totalCorrect"],
             where: {
@@ -250,6 +252,7 @@ class userExamController {
           },
         });
 
+        // calculate user score immediately
         const userGrade = await Grade.findOne({
           attributes: ["id", "questionsCount", "totalCorrect"],
           where: {

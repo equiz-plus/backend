@@ -94,11 +94,33 @@ class authController {
       const isValidPassword = comparePassword(password, user.password);
       if (!isValidPassword) throw { name: "Unauthorized" };
       if (user.role === "guest") throw { name: "isNotComfirm" };
+
+      // check user premium status
+      const now = new Date();
+
+      let premiumStatus = user.isPremium;
+
+      if (!user.premiumExpiry || user.premiumExpiry < now) {
+        const removePremium = await User.update(
+          {
+            isPremium: false,
+          },
+          {
+            where: {
+              id: +user.id,
+            },
+          }
+        );
+        premiumStatus = false;
+      } else {
+        premiumStatus = true;
+      }
+
       const access_token = encrypt({
         id: user.id,
         username: user.username,
         role: user.role,
-        isPremium: user.isPremium,
+        isPremium: premiumStatus,
       });
       res.status(200).json({
         access_token,
