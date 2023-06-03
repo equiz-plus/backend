@@ -1,27 +1,94 @@
 const { Op } = require("sequelize");
-const { Question, Answer } = require("../models");
+const { Question, Answer, Category, sequelize } = require("../models");
 
 class questionController {
   static async index(req, res, next) {
     try {
-      const { search } = req.query;
+      const { page, CategoryId, displayLength, order, search } = req.query;
 
       let whereCondition = {};
+
+      // set query length
+      let pagination = +displayLength;
+      if (!displayLength || isNaN(displayLength)) {
+        pagination = 10;
+      }
+
+      // set search
       if (search) {
-        whereCondition = {
-          question: {
-            [Op.iLike]: `%${search}%`,
-          },
+        whereCondition.question = {
+          [Op.iLike]: `%${search}%`,
         };
       }
 
-      const { count, rows } = await Question.findAndCountAll({
+      // set sort
+      let sortBy = "id";
+      let sortOrder = order;
+
+      if (!sortOrder || sortOrder !== "ASC") {
+        sortOrder = "DESC";
+      } else {
+        sortOrder = "ASC";
+      }
+
+      let autoSort = [`${sortBy}`, `${sortOrder}`];
+
+      console.log(autoSort, "INI SORTINGAN");
+
+      // check if CategoryId input is correct
+      if (CategoryId || !isNaN(CategoryId)) {
+        whereCondition.CategoryId = +CategoryId;
+      }
+
+      console.log(whereCondition, "INI WHERE FINAL");
+
+      // check if page number could be out of range
+      const questionCount = await Question.count({
         where: whereCondition,
       });
-      if (search && count <= 0) throw { name: "NotFound" };
+
+      console.log(questionCount, "INI TOTAL QUESTIONS YANG DITEMUKAN");
+      console.log(page, "INI PAGE SEBELUM CORRECTION");
+
+      // page number correction
+      const totalPages = Math.ceil(questionCount / pagination);
+      console.log(totalPages, "INI TOTAL PAGES");
+
+      let autoPage = 1;
+      if (page > totalPages || totalPages === 0) {
+        autoPage = totalPages;
+      } else if (page < 1 || isNaN(page)) {
+        autoPage = 1;
+      } else {
+        autoPage = +page;
+      }
+
+      console.log(autoPage, "INI FINAL AUTOPAGE");
+
+      // offset correction
+      let finalOffset = (+autoPage - 1) * pagination;
+      if (finalOffset < 0) {
+        finalOffset = 0;
+      }
+
+      // ini final query
+      const questionsData = await Question.findAndCountAll({
+        include: [
+          {
+            model: Category,
+          },
+        ],
+        where: whereCondition,
+        order: [autoSort],
+        offset: finalOffset,
+        limit: pagination,
+      });
+
       res.status(200).json({
-        count,
-        questions: rows,
+        currentPage: autoPage,
+        totalPages: totalPages,
+        totalExams: questionsData.count,
+        exams: questionsData.rows,
       });
     } catch (err) {
       next(err);
@@ -29,88 +96,36 @@ class questionController {
   }
 
   static async create(req, res, next) {
+    const generateQuestionTransaction = await sequelize.transaction();
     try {
-      const {
-        question,
-        option1,
-        option2,
-        option3,
-        option4,
-        answer,
-        isPremium,
-        explanation,
-      } = req.body;
-      const newQuestion = await Question.create({
-        question,
-        option1,
-        option2,
-        option3,
-        option4,
-        answer,
-        isPremium,
-        explanation,
-      });
-      res.status(201).json(newQuestion);
-    } catch (err) {
-      next(err);
-    }
-  }
+      const { questionInput, answersInput } = req.body;
 
-  static async edit(req, res, next) {
-    try {
-      const { id } = req.params;
-      const {
-        question,
-        option1,
-        option2,
-        option3,
-        option4,
-        answer,
-        isPremium,
-        explanation,
-      } = req.body;
-      if (
-        !question &&
-        !option1 &&
-        !option2 &&
-        !option3 &&
-        !option4 &&
-        !answer &&
-        !explanation
-      )
-        throw { name: "NothingUpdate" };
-
-      const newQuestion = await Question.update(
+      const newQuestion = await Question.create(
         {
-          question,
-          option1,
-          option2,
-          option3,
-          option4,
-          answer,
-          isPremium,
-          explanation,
+          question: questionInput.question,
+          CategoryId: questionInput.CategoryId,
         },
         {
-          where: {
-            id,
-          },
+          transaction: generateQuestionTransaction,
         }
       );
 
-      if (newQuestion[0] <= 0) throw { name: "NotFound" };
-
-      res.status(200).json({
-        message: "Question has been updated",
+      await Answer.bulkCreate(answersInput, {
+        transaction: generateQuestionTransaction,
       });
+
+      await generateQuestionTransaction.commit();
+
+      res.status(201).json(newQuestion);
     } catch (err) {
+      await generateQuestionTransaction.rollback();
       next(err);
     }
   }
 
   static async delete(req, res, next) {
     try {
-      const id = req.params.id;
+      const { id } = req.params;
       const question = await Question.destroy({
         where: {
           id,

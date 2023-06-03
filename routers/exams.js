@@ -1,11 +1,12 @@
 const express = require("express");
 const { isLoggedIn, isAdmin, isOwner } = require("../middlewares");
 const { examController } = require("../controllers");
+const userExamController = require("../controllers/examUserController");
 const router = express.Router();
 
 router.use(isLoggedIn);
 
-router.get("/", isAdmin, examController.examLists);
+router.get("/", examController.examLists);
 router.post("/", isAdmin, examController.create);
 router.patch(
   "/change-visibility/:id",
@@ -13,13 +14,13 @@ router.patch(
   examController.changeVisibility
 );
 
-router.get("/session", examController.getSession);
-router.post("/end", examController.endExam);
+router.get("/session", userExamController.getSession);
+router.post("/end", userExamController.endExam);
 router.get("/detail/:id", examController.examDetail);
 
-router.post("/start/:ExamId", examController.start);
-router.post("/answer/:questionNumber", examController.answer);
-router.get("/my-answer/:ExamId", examController.myAnswer);
+router.post("/start/:ExamId", userExamController.start);
+router.post("/answer/:questionNumber", userExamController.answer);
+router.get("/my-answer/:ExamId", userExamController.myAnswer);
 
 router.put("/:id", isAdmin, examController.edit);
 router.delete("/:id", isAdmin, examController.delete);

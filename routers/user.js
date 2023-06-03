@@ -14,12 +14,12 @@ router.post(
 router.patch("/subscription", isLoggedIn, paymentController.subscription);
 
 // profile customization
-router.post(
-  "/upload",
-  isLoggedIn,
-  uploader.single("file"),
-  userController.uploadFile
-);
+// router.post(
+//   "/upload",
+//   isLoggedIn,
+//   uploader.single("file"),
+//   userController.uploadFile
+// );
 router.put("/edit", isLoggedIn, userController.userEdit);
 router.get("/profile", isLoggedIn, userController.userDetail);
 router.get("/detail/:id", isLoggedIn, isOwner, userController.detail);

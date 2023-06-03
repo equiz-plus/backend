@@ -8,28 +8,88 @@ class userController {
   // *admin
   static async usersList(req, res, next) {
     try {
-      const { search } = req.query;
+      const { page, displayLength, sort, order, search } = req.query;
 
       let whereCondition = {};
+
+      // set query length
+      let pagination = +displayLength;
+      if (!displayLength || isNaN(displayLength)) {
+        pagination = 10;
+      }
+
+      // set search
       if (search) {
-        whereCondition = {
-          name: {
-            [Op.iLike]: `%${search}%`,
-          },
+        whereCondition.name = {
+          [Op.iLike]: `%${search}%`,
         };
       }
 
-      const { count, rows } = await User.findAndCountAll({
+      // set sort
+      let sortBy = sort;
+      let sortOrder = order;
+
+      if (!sortBy || sortBy !== "name") {
+        sortBy = "id";
+      } else {
+        sortBy = "name";
+      }
+
+      if (!sortOrder || sortOrder !== "ASC") {
+        sortOrder = "DESC";
+      } else {
+        sortOrder = "ASC";
+      }
+
+      let autoSort = [`${sortBy}`, `${sortOrder}`];
+
+      console.log(autoSort, "INI SORTINGAN");
+
+      // check if page number could be out of range
+      const userCount = await User.count({
         where: whereCondition,
+      });
+
+      console.log(userCount, "INI TOTAL USER YANG DITEMUKAN");
+      console.log(page, "INI PAGE SEBELUM CORRECTION");
+
+      // page number correction
+      const totalPages = Math.ceil(userCount / pagination);
+      console.log(totalPages, "INI TOTAL PAGES");
+
+      let autoPage = 1;
+      if (page > totalPages || totalPages === 0) {
+        autoPage = totalPages;
+      } else if (page < 1 || isNaN(page)) {
+        autoPage = 1;
+      } else {
+        autoPage = +page;
+      }
+
+      console.log(autoPage, "INI FINAL AUTOPAGE");
+
+      // offset correction
+      let finalOffset = (+autoPage - 1) * pagination;
+      if (finalOffset < 0) {
+        finalOffset = 0;
+      }
+
+      // ini final query
+      const usersData = await User.findAndCountAll({
         attributes: {
           exclude: ["password"],
         },
+        where: whereCondition,
+        order: [autoSort],
+        offset: finalOffset,
+        limit: pagination,
       });
-      if (search && count <= 0) throw { name: "NotFound" };
 
       res.status(200).json({
-        count,
-        users: rows,
+        currentPage: autoPage,
+        totalPages: totalPages,
+        totalRows: usersData.count,
+        users: usersData.rows,
       });
     } catch (err) {
       next(err);
@@ -159,34 +219,34 @@ class userController {
 
   // user upload profile photo
   // *user
-  static async uploadFile(req, res, next) {
-    try {
-      const { id } = req.user;
-      if (!req.file) throw { name: "FileRequired" };
-      const { path } = req.file;
+  // static async uploadFile(req, res, next) {
+  //   try {
+  //     const { id } = req.user;
+  //     if (!req.file) throw { name: "FileRequired" };
+  //     const { path } = req.file;
 
-      const upload = await cloudinary.uploader.upload(path, {
-        folder: "user-avatar",
-        width: 200,
-        height: 200,
-        Crop: "fill",
-      });
+  //     const upload = await cloudinary.uploader.upload(path, {
+  //       folder: "user-avatar",
+  //       width: 200,
+  //       height: 200,
+  //       Crop: "fill",
+  //     });
 
-      console.log(upload);
+  //     console.log(upload);
 
-      const user = await User.update(
-        // { avatar: upload },
-        { where: { id } }
-      );
-      if (user <= 0) throw { name: "UploadFailed" };
+  //     const user = await User.update(
+  //       // { avatar: upload },
+  //       { where: { id } }
+  //     );
+  //     if (user <= 0) throw { name: "UploadFailed" };
 
-      return res.status(201).json({
-        message: "Avatar has been updated",
-      });
-    } catch (err) {
-      next(err);
-    }
-  }
+  //     return res.status(201).json({
+  //       message: "Avatar has been updated",
+  //     });
+  //   } catch (err) {
+  //     next(err);
+  //   }
+  // }
 }
 
 module.exports = userController;
