@@ -17,13 +17,6 @@ class examController {
         pagination = 10;
       }
 
-      // set search
-      if (search) {
-        whereCondition.title = {
-          [Op.iLike]: `%${search}%`,
-        };
-      }
-
       // set sort
       let sortBy = sort;
       let sortOrder = order;
@@ -43,10 +36,20 @@ class examController {
       let autoSort = [`${sortBy}`, `${sortOrder}`];
 
       console.log(autoSort, "INI SORTINGAN");
+      console.log(CategoryId, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
       // check if CategoryId input is correct
-      if (CategoryId || !isNaN(CategoryId)) {
+      if (!CategoryId || isNaN(CategoryId)) {
+        whereCondition = {};
+      } else {
         whereCondition.CategoryId = +CategoryId;
+      }
+
+      // set search
+      if (search) {
+        whereCondition.title = {
+          [Op.iLike]: `%${search}%`,
+        };
       }
 
       console.log(whereCondition, "INI WHERE FINAL");
