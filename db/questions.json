@@ -1,22 +1,102 @@
 [
   {
     "question": "Whistler was the codename of this Microsoft Operating System.",
-    "CategoryId": 4
+    "CategoryId": 1
   },
   {
     "question": "Moore's law originally stated that the number of transistors on a microprocessor chip would double every...",
-    "CategoryId": 4
+    "CategoryId": 1
   },
   {
     "question": "When was the programming language #C released?",
-    "CategoryId": 4
+    "CategoryId": 1
   },
   {
     "question": "What five letter word is the motto of the IBM Computer company?",
-    "CategoryId": 4
+    "CategoryId": 1
   },
   {
     "question": "All of the following programs are classified as raster graphics editors EXCEPT:",
+    "CategoryId": 1
+  },
+  {
+    "question": "What is the process by which plants convert light energy into chemical energy?",
+    "CategoryId": 2
+  },
+  {
+    "question": "What is the smallest unit of matter?",
+    "CategoryId": 2
+  },
+  {
+    "question": "What is the force that opposes motion between two surfaces in contact?",
+    "CategoryId": 2
+  },
+  {
+    "question": "Which of the following is NOT a type of electromagnetic radiation?",
+    "CategoryId": 2
+  },
+  {
+    "question": "What is the process by which an atom gains or loses electrons?",
+    "CategoryId": 2
+  },
+  {
+    "question": "What is the term for a belief system based on the worship of a single deity?",
+    "CategoryId": 3
+  },
+  {
+    "question": "What is the term for a political system in which power is held by a small group of individuals?",
+    "CategoryId": 3
+  },
+  {
+    "question": "What is the term for a system of government in which power is divided between a central authority and regional governments?",
+    "CategoryId": 3
+  },
+  {
+    "question": "What is the term for a theory or system of social organization in which all property is owned by the community and each person contributes and receives according to their abilities and needs?",
+    "CategoryId": 3
+  },
+  {
+    "question": "What is the term for the economic system characterized by private ownership of resources and the pursuit of profit?",
+    "CategoryId": 3
+  },
+  {
+    "question": "What is the process of converting high-level programming code into a low-level machine-readable format called?",
     "CategoryId": 4
+  },
+  {
+    "question": "What is the primary purpose of an operating system?",
+    "CategoryId": 4
+  },
+  {
+    "question": "What does the acronym 'CPU' stand for in computer terminology?",
+    "CategoryId": 4
+  },
+  {
+    "question": "What does the term 'RAM' stand for in computer memory?",
+    "CategoryId": 4
+  },
+  {
+    "question": "What is the process of encoding information in a way that only authorized parties can read it?",
+    "CategoryId": 4
+  },
+  {
+    "question": "Which year did World War I begin?",
+    "CategoryId": 5
+  },
+  {
+    "question": "Who was the first President of the United States?",
+    "CategoryId": 5
+  },
+  {
+    "question": "When did the Industrial Revolution start?",
+    "CategoryId": 5
+  },
+  {
+    "question": "Which city was the capital of the Roman Empire?",
+    "CategoryId": 5
+  },
+  {
+    "question": "What year did the French Revolution begin?",
+    "CategoryId": 5
   }
 ]

@@ -1,4 +1,4 @@
-const { Op, Sequelize } = require("sequelize");
+const { Op, Sequelize, or } = require("sequelize");
 const {
   Exam,
   Question,
@@ -17,10 +17,10 @@ const {
 class examController {
   static async examLists(req, res, next) {
     try {
-      const { page, CategoryId, displayLength, sort, search } = req.query;
+      const { page, CategoryId, displayLength, sort, order, search } =
+        req.query;
 
       let whereCondition = {};
-      let whereCategory = {};
 
       // set query length
       let pagination = +displayLength;
@@ -29,55 +29,71 @@ class examController {
       }
 
       // set search
-      // if (search) {
-      //   whereCondition = {
-      //     title: {
-      //       [Op.iLike]: `%${search}%`,
-      //     },
-      //   };
-      // }
+      if (search) {
+        whereCondition.title = {
+          [Op.iLike]: `%${search}%`,
+        };
+      }
 
       // set sort
-      // let sortBy = sort;
-      // if (!sortBy) {
-      //   sortBy = ["name", "ASC"];
-      // } else {
-      //   sortBy = ["name", "DESC"];
-      // }
+      let sortBy = sort;
+      let sortOrder = order;
 
-      // if filter is not a number or undefined
-      // if (CategoryId && !isNaN(CategoryId)) {
-      //   whereCategory = { CategoryId: +CategoryId };
-      // } else {
-      //   whereCategory = {};
-      // }
+      if (!sortBy || sortBy !== "name") {
+        sortBy = "id";
+      } else {
+        sortBy = "title";
+      }
 
-      // check if such category ID exist
-      // const validCategory = await Category.findOne({
-      //   attributes: ["id"],
-      //   where: whereCategory,
-      // });
+      if (!sortOrder || sortOrder !== "ASC") {
+        sortOrder = "DESC";
+      } else {
+        sortOrder = "ASC";
+      }
 
-      // console.log(validCategory, "INI VALID CATEGORY");
+      let autoSort = [`${sortBy}`, `${sortOrder}`];
 
-      // if (!validCategory) {
-      //   whereCategory = {};
-      // }
+      console.log(autoSort, "INI SORTINGAN");
+
+      // check if CategoryId input is correct
+      if (!CategoryId || isNaN(CategoryId)) {
+        whereCondition = {};
+      } else {
+        whereCondition.CategoryId = +CategoryId;
+      }
+
+      console.log(whereCondition, "INI WHERE FINAL");
 
       // check if page number could be out of range
-      const examCount = await Exam.count();
-      const totalPages = Math.ceil(examCount / pagination);
+      const examCount = await Exam.count({
+        where: whereCondition,
+      });
+
+      console.log(examCount, "INI TOTAL EXAM YANG DITEMUKAN");
+      console.log(page, "INI PAGE SEBELUM CORRECTION");
 
       // page number correction
+      const totalPages = Math.ceil(examCount / pagination);
+      console.log(totalPages, "INI TOTAL PAGES");
+
       let autoPage = 1;
-      if (page > examCount / displayLength) {
-        autoPage = examCount / displayLength;
+      if (page > totalPages || totalPages === 0) {
+        autoPage = totalPages;
       } else if (page < 1 || isNaN(page)) {
         autoPage = 1;
       } else {
-        autoPage = page;
+        autoPage = +page;
       }
 
+      console.log(autoPage, "INI FINAL AUTOPAGE");
+
+      // offset correction
+      let finalOffset = (+autoPage - 1) * pagination;
+      if (finalOffset < 0) {
+        finalOffset = 0;
+      }
+
+      // ini final query
       const exams = await Exam.findAndCountAll({
         include: [
           {
@@ -85,8 +101,8 @@ class examController {
           },
         ],
         where: whereCondition,
-        // order: [sortBy],
-        offset: (+autoPage - 1) * pagination || 0,
+        order: [autoSort],
+        offset: finalOffset,
         limit: pagination,
       });
 
@@ -249,41 +265,6 @@ class examController {
       });
       if (!exams) throw { name: "NotFound" };
       res.status(200).json(exams);
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  // list of exams. Only shows open exam.
-  // !!convert to pagination version
-  // *user
-  static async examListsUser(req, res, next) {
-    try {
-      const { search } = req.query;
-
-      let whereCondition = {};
-
-      if (search) {
-        whereCondition = {
-          title: {
-            [Op.iLike]: `%${search}%`,
-          },
-          isOpen: true,
-        };
-      } else {
-        whereCondition = {
-          isOpen: true,
-        };
-      }
-
-      const { count, rows } = await Exam.findAndCountAll({
-        where: whereCondition,
-      });
-      if (search && count <= 0) throw { name: "NotFound" };
-      res.status(200).json({
-        count,
-        exams: rows,
-      });
     } catch (err) {
       next(err);
     }
@@ -470,6 +451,31 @@ class examController {
               UserId: +id,
             },
           });
+
+          const userGrade = await Grade.findOne({
+            attributes: ["id", "questionsCount", "totalCorrect"],
+            where: {
+              UserId: +activeSession.UserId,
+              ExamId: +activeSession.ExamId,
+            },
+          });
+
+          const resultScore = Math.round(
+            (userGrade.totalCorrect / userGrade.questionsCount) * 100
+          );
+
+          const finalScore = await Grade.update(
+            {
+              grade: Math.round(resultScore),
+            },
+            {
+              where: {
+                UserId: +activeSession.UserId,
+                ExamId: +activeSession.ExamId,
+              },
+            }
+          );
+
           throw { name: "TimeOver" };
         }
       } else {

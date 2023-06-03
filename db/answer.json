@@ -118,5 +118,485 @@
     "QuestionId": 5,
     "isCorrect": true,
     "explanation": "Paint.NET, GIMP and Adobe Photoshop are classified as raster graphics editors"
+  },
+  {
+    "answer": "Photosynthesis",
+    "QuestionId": 6,
+    "isCorrect": true,
+    "explanation": "Photosynthesis is the process by which plants convert light energy into chemical energy."
+  },
+  {
+    "answer": "Cellular respiration",
+    "QuestionId": 6,
+    "isCorrect": false,
+    "explanation": "Cellular respiration is the process by which cells convert glucose and oxygen into energy."
+  },
+  {
+    "answer": "Mitosis",
+    "QuestionId": 6,
+    "isCorrect": false,
+    "explanation": "Mitosis is the process of cell division, producing two identical daughter cells."
+  },
+  {
+    "answer": "Osmosis",
+    "QuestionId": 6,
+    "isCorrect": false,
+    "explanation": "Osmosis is the movement of water molecules across a semipermeable membrane."
+  },
+  {
+    "answer": "Atom",
+    "QuestionId": 7,
+    "isCorrect": true,
+    "explanation": "An atom is the smallest unit of matter that retains the properties of an element."
+  },
+  {
+    "answer": "Molecule",
+    "QuestionId": 7,
+    "isCorrect": false,
+    "explanation": "A molecule is a group of atoms bonded together."
+  },
+  {
+    "answer": "Cell",
+    "QuestionId": 7,
+    "isCorrect": false,
+    "explanation": "A cell is the basic structural and functional unit of all living organisms."
+  },
+  {
+    "answer": "Proton",
+    "QuestionId": 7,
+    "isCorrect": false,
+    "explanation": "A proton is a subatomic particle found in the nucleus of an atom."
+  },
+  {
+    "answer": "Sound waves",
+    "QuestionId": 8,
+    "isCorrect": true,
+    "explanation": "Sound waves are mechanical waves that require a medium for propagation."
+  },
+  {
+    "answer": "X-rays",
+    "QuestionId": 8,
+    "isCorrect": false,
+    "explanation": "X-rays are a form of electromagnetic radiation with high energy."
+  },
+  {
+    "answer": "Radio waves",
+    "QuestionId": 8,
+    "isCorrect": false,
+    "explanation": "Radio waves are a form of electromagnetic radiation with low energy."
+  },
+  {
+    "answer": "Visible light",
+    "QuestionId": 8,
+    "isCorrect": false,
+    "explanation": "Visible light is the portion of the electromagnetic spectrum visible to the human eye."
+  },
+  {
+    "answer": "Ionization",
+    "QuestionId": 9,
+    "isCorrect": true,
+    "explanation": "Ionization is the process by which an atom gains or loses electrons."
+  },
+  {
+    "answer": "Fusion",
+    "QuestionId": 9,
+    "isCorrect": false,
+    "explanation": "Fusion is the process of combining atomic nuclei to release energy."
+  },
+  {
+    "answer": "Fission",
+    "QuestionId": 9,
+    "isCorrect": false,
+    "explanation": "Fission is the process of splitting atomic nuclei to release energy."
+  },
+  {
+    "answer": "Combustion",
+    "QuestionId": 9,
+    "isCorrect": false,
+    "explanation": "Combustion is the process of burning a substance in the presence of oxygen."
+  },
+  {
+    "answer": "Gravity",
+    "QuestionId": 10,
+    "isCorrect": true,
+    "explanation": "Gravity is the force that attracts objects with mass towards each other."
+  },
+  {
+    "answer": "Friction",
+    "QuestionId": 10,
+    "isCorrect": false,
+    "explanation": "Friction is the force that opposes motion between two surfaces in contact."
+  },
+  {
+    "answer": "Magnetism",
+    "QuestionId": 10,
+    "isCorrect": false,
+    "explanation": "Magnetism is the force exerted by magnets or magnetic materials."
+  },
+  {
+    "answer": "Electromagnetism",
+    "QuestionId": 10,
+    "isCorrect": false,
+    "explanation": "Electromagnetism is the interaction of electric and magnetic fields."
+  },
+  {
+    "answer": "Monotheism",
+    "QuestionId": 11,
+    "isCorrect": true,
+    "explanation": "Monotheism is a belief system based on the worship of a single deity."
+  },
+  {
+    "answer": "Polytheism",
+    "QuestionId": 11,
+    "isCorrect": false,
+    "explanation": "Polytheism is a belief system based on the worship of multiple deities."
+  },
+  {
+    "answer": "Atheism",
+    "QuestionId": 11,
+    "isCorrect": false,
+    "explanation": "Atheism is the lack of belief in the existence of deities."
+  },
+  {
+    "answer": "Pantheism",
+    "QuestionId": 11,
+    "isCorrect": false,
+    "explanation": "Pantheism is the belief that the universe or nature is divine and should be revered."
+  },
+  {
+    "answer": "Oligarchy",
+    "QuestionId": 12,
+    "isCorrect": true,
+    "explanation": "Oligarchy is a political system in which power is held by a small group of individuals."
+  },
+  {
+    "answer": "Democracy",
+    "QuestionId": 12,
+    "isCorrect": false,
+    "explanation": "Democracy is a political system in which power is vested in the people."
+  },
+  {
+    "answer": "Autocracy",
+    "QuestionId": 12,
+    "isCorrect": false,
+    "explanation": "Autocracy is a political system in which power is held by a single individual."
+  },
+  {
+    "answer": "Theocracy",
+    "QuestionId": 12,
+    "isCorrect": false,
+    "explanation": "Theocracy is a political system in which religious leaders hold power."
+  },
+  {
+    "answer": "Federalism",
+    "QuestionId": 13,
+    "isCorrect": true,
+    "explanation": "Federalism is a system of government in which power is divided between a central authority and regional governments."
+  },
+  {
+    "answer": "Unitary",
+    "QuestionId": 13,
+    "isCorrect": false,
+    "explanation": "Unitary is a system of government in which power is concentrated in a central authority."
+  },
+  {
+    "answer": "Confederalism",
+    "QuestionId": 13,
+    "isCorrect": false,
+    "explanation": "Confederalism is a system of government in which independent states form an alliance with a weak central authority."
+  },
+  {
+    "answer": "Autocracy",
+    "QuestionId": 13,
+    "isCorrect": false,
+    "explanation": "Autocracy is a system of government in which power is held by a single individual."
+  },
+  {
+    "answer": "Socialism",
+    "QuestionId": 14,
+    "isCorrect": true,
+    "explanation": "Socialism is a theory or system of social organization in which all property is owned by the community and each person contributes and receives according to their abilities and needs."
+  },
+  {
+    "answer": "Capitalism",
+    "QuestionId": 14,
+    "isCorrect": false,
+    "explanation": "Capitalism is an economic system based on private ownership of resources and the pursuit of profit."
+  },
+  {
+    "answer": "Communism",
+    "QuestionId": 14,
+    "isCorrect": false,
+    "explanation": "Communism is a political and economic ideology advocating for a classless society where all property is owned by the community."
+  },
+  {
+    "answer": "Anarchism",
+    "QuestionId": 14,
+    "isCorrect": false,
+    "explanation": "Anarchism is a political philosophy that advocates for the absence of government and the abolition of hierarchies."
+  },
+  {
+    "answer": "Capitalism",
+    "QuestionId": 15,
+    "isCorrect": true,
+    "explanation": "Capitalism is an economic system characterized by private ownership of resources and the pursuit of profit."
+  },
+  {
+    "answer": "Socialism",
+    "QuestionId": 15,
+    "isCorrect": false,
+    "explanation": "Socialism is a theory or system of social organization in which all property is owned by the community and each person contributes and receives according to their abilities and needs."
+  },
+  {
+    "answer": "Communism",
+    "QuestionId": 15,
+    "isCorrect": false,
+    "explanation": "Communism is a political and economic ideology advocating for a classless society where all property is owned by the community."
+  },
+  {
+    "answer": "Mixed economy",
+    "QuestionId": 15,
+    "isCorrect": false,
+    "explanation": "A mixed economy is an economic system that combines elements of both capitalism and socialism."
+  },
+  {
+    "answer": "Compilation",
+    "QuestionId": 16,
+    "isCorrect": true,
+    "explanation": "Compilation is the process of converting high-level programming code into a low-level machine-readable format."
+  },
+  {
+    "answer": "Interpretation",
+    "QuestionId": 16,
+    "isCorrect": false,
+    "explanation": "Interpretation is the process of executing code directly without prior conversion."
+  },
+  {
+    "answer": "Debugging",
+    "QuestionId": 16,
+    "isCorrect": false,
+    "explanation": "Debugging is the process of identifying and fixing errors or defects in a program."
+  },
+  {
+    "answer": "Optimization",
+    "QuestionId": 16,
+    "isCorrect": false,
+    "explanation": "Optimization is the process of improving the performance or efficiency of a program."
+  },
+  {
+    "answer": "Manage computer hardware and software resources",
+    "QuestionId": 17,
+    "isCorrect": true,
+    "explanation": "The primary purpose of an operating system is to manage computer hardware and software resources."
+  },
+  {
+    "answer": "Execute application programs",
+    "QuestionId": 17,
+    "isCorrect": false,
+    "explanation": "Executing application programs is one of the functions of an operating system, but not its primary purpose."
+  },
+  {
+    "answer": "Provide internet connectivity",
+    "QuestionId": 17,
+    "isCorrect": false,
+    "explanation": "Providing internet connectivity is a feature of an operating system, but not its primary purpose."
+  },
+  {
+    "answer": "Secure data and protect against threats",
+    "QuestionId": 17,
+    "isCorrect": false,
+    "explanation": "Securing data and protecting against threats is an important aspect of an operating system, but not its primary purpose."
+  },
+  {
+    "answer": "Central Processing Unit",
+    "QuestionId": 18,
+    "isCorrect": true,
+    "explanation": "CPU stands for Central Processing Unit, which is the primary component responsible for executing instructions in a computer."
+  },
+  {
+    "answer": "Computer Power Unit",
+    "QuestionId": 18,
+    "isCorrect": false,
+    "explanation": "There is no such term as 'Computer Power Unit' in computer terminology."
+  },
+  {
+    "answer": "Central Power Unit",
+    "QuestionId": 18,
+    "isCorrect": false,
+    "explanation": "There is no such term as 'Central Power Unit' in computer terminology."
+  },
+  {
+    "answer": "Computer Processing Unit",
+    "QuestionId": 18,
+    "isCorrect": false,
+    "explanation": "The correct term is 'Central Processing Unit' (CPU), not 'Computer Processing Unit'."
+  },
+  {
+    "answer": "Random Access Memory",
+    "QuestionId": 19,
+    "isCorrect": true,
+    "explanation": "RAM stands for Random Access Memory, which is a type of computer memory that provides fast and temporary storage for data and program instructions."
+  },
+  {
+    "answer": "Read-Only Memory",
+    "QuestionId": 19,
+    "isCorrect": false,
+    "explanation": "Read-Only Memory (ROM) is a type of computer memory that stores data permanently and cannot be modified."
+  },
+  {
+    "answer": "Real-Time Application Memory",
+    "QuestionId": 19,
+    "isCorrect": false,
+    "explanation": "There is no such term as 'Real-Time Application Memory' in computer memory."
+  },
+  {
+    "answer": "Random Access Machine",
+    "QuestionId": 19,
+    "isCorrect": false,
+    "explanation": "Random Access Machine (RAM) is a theoretical computing model, but not the correct meaning of 'RAM' in computer memory."
+  },
+  {
+    "answer": "Encryption",
+    "QuestionId": 20,
+    "isCorrect": true,
+    "explanation": "Encryption is the process of encoding information in a way that only authorized parties can read it."
+  },
+  {
+    "answer": "Decryption",
+    "QuestionId": 20,
+    "isCorrect": false,
+    "explanation": "Decryption is the process of decoding encrypted information back into its original form."
+  },
+  {
+    "answer": "Compression",
+    "QuestionId": 20,
+    "isCorrect": false,
+    "explanation": "Compression is the process of reducing the size of data to save storage space or transmit it more efficiently."
+  },
+  {
+    "answer": "Authentication",
+    "QuestionId": 20,
+    "isCorrect": false,
+    "explanation": "Authentication is the process of verifying the identity or validity of a user, device, or system."
+  },
+  {
+    "answer": "1914",
+    "QuestionId": 21,
+    "isCorrect": true,
+    "explanation": "World War I began in 1914 and lasted until 1918."
+  },
+  {
+    "answer": "1916",
+    "QuestionId": 21,
+    "isCorrect": false,
+    "explanation": "Incorrect option. World War I began in 1914, not 1916."
+  },
+  {
+    "answer": "1918",
+    "QuestionId": 21,
+    "isCorrect": false,
+    "explanation": "Incorrect option. World War I began in 1914 and ended in 1918."
+  },
+  {
+    "answer": "1920",
+    "QuestionId": 21,
+    "isCorrect": false,
+    "explanation": "Incorrect option. World War I began in 1914 and ended in 1918."
+  },
+  {
+    "answer": "George Washington",
+    "QuestionId": 22,
+    "isCorrect": true,
+    "explanation": "George Washington served as the first President of the United States from 1789 to 1797."
+  },
+  {
+    "answer": "Thomas Jefferson",
+    "QuestionId": 22,
+    "isCorrect": false,
+    "explanation": "Incorrect option. Thomas Jefferson was the third President of the United States, not the first."
+  },
+  {
+    "answer": "Abraham Lincoln",
+    "QuestionId": 22,
+    "isCorrect": false,
+    "explanation": "Incorrect option. Abraham Lincoln was the 16th President of the United States, not the first."
+  },
+  {
+    "answer": "John Adams",
+    "QuestionId": 22,
+    "isCorrect": false,
+    "explanation": "Incorrect option. John Adams was the second President of the United States, not the first."
+  },
+  {
+    "answer": "18th century",
+    "QuestionId": 23,
+    "isCorrect": true,
+    "explanation": "The Industrial Revolution started in the 18th century, primarily in Great Britain."
+  },
+  {
+    "answer": "19th century",
+    "QuestionId": 23,
+    "isCorrect": false,
+    "explanation": "Incorrect option. The Industrial Revolution started in the 18th century, not the 19th."
+  },
+  {
+    "answer": "17th century",
+    "QuestionId": 23,
+    "isCorrect": false,
+    "explanation": "Incorrect option. The Industrial Revolution started in the 18th century, not the 17th."
+  },
+  {
+    "answer": "16th century",
+    "QuestionId": 23,
+    "isCorrect": false,
+    "explanation": "Incorrect option. The Industrial Revolution started in the 18th century, not the 16th."
+  },
+  {
+    "answer": "Rome",
+    "QuestionId": 24,
+    "isCorrect": true,
+    "explanation": "Rome was the capital city of the Roman Empire."
+  },
+  {
+    "answer": "Athens",
+    "QuestionId": 24,
+    "isCorrect": false,
+    "explanation": "Incorrect option. Athens was a prominent city in ancient Greece, not the capital of the Roman Empire."
+  },
+  {
+    "answer": "Alexandria",
+    "QuestionId": 24,
+    "isCorrect": false,
+    "explanation": "Incorrect option. Alexandria was an important city in ancient Egypt, not the capital of the Roman Empire."
+  },
+  {
+    "answer": "Carthage",
+    "QuestionId": 24,
+    "isCorrect": false,
+    "explanation": "Incorrect option. Carthage was an ancient city-state in North Africa, not the capital of the Roman Empire."
+  },
+  {
+    "answer": "1789",
+    "QuestionId": 25,
+    "isCorrect": true,
+    "explanation": "The French Revolution began in 1789 and lasted until 1799."
+  },
+  {
+    "answer": "1799",
+    "QuestionId": 25,
+    "isCorrect": false,
+    "explanation": "Incorrect option. The French Revolution began in 1789 and lasted until 1799."
+  },
+  {
+    "answer": "1800",
+    "QuestionId": 25,
+    "isCorrect": false,
+    "explanation": "Incorrect option. The French Revolution began in 1789 and lasted until 1799."
+  },
+  {
+    "answer": "1810",
+    "QuestionId": 25,
+    "isCorrect": false,
+    "explanation": "Incorrect option. The French Revolution began in 1789 and lasted until 1799."
   }
 ]

@@ -13,7 +13,6 @@ router.patch(
   examController.changeVisibility
 );
 
-router.get("/list", examController.examListsUser);
 router.get("/session", examController.getSession);
 router.post("/end", examController.endExam);
 router.get("/detail/:id", examController.examDetail);
