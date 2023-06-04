@@ -2,36 +2,35 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Transactions", {
+    await queryInterface.createTable("Certificates", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      publishedDate: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
+      OrganizationId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+      },
       UserId: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        references: {
-          model: "Users",
-          key: "id",
-        },
-        onDelete: "cascade",
-        onUpdate: "cascade",
       },
-      token: {
-        type: Sequelize.STRING,
-      },
-      paymentUrl: {
-        type: Sequelize.STRING,
-      },
-      status: {
-        type: Sequelize.STRING,
-      },
-      ProductId: {
+      ExamId: {
+        allowNull: false,
         type: Sequelize.INTEGER,
       },
-      orderId: {
+      GradeId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+      },
+      QRcode: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
       createdAt: {
@@ -45,6 +44,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Transactions");
+    await queryInterface.dropTable("Certificates");
   },
 };

@@ -111,8 +111,14 @@ class examController {
   // *admin
   static async create(req, res, next) {
     try {
-      const { title, description, totalQuestions, duration, CategoryId } =
-        req.body;
+      const {
+        title,
+        description,
+        totalQuestions,
+        duration,
+        CategoryId,
+        OrganizationId,
+      } = req.body;
 
       if (totalQuestions < 5 || totalQuestions > 100)
         throw { name: "InvalidQuestions" };
@@ -124,6 +130,7 @@ class examController {
         duration,
         CategoryId,
         isOpen: false,
+        OrganizationId: OrganizationId,
       });
       res.status(201).json(exam);
     } catch (err) {
@@ -151,17 +158,19 @@ class examController {
         description,
         totalQuestions,
         duration,
-        isPremium,
-        closingDate,
+        CategoryId,
+        OrganizationId,
       } = req.body;
-      if (!title && !description && !totalQuestions && !duration)
+
+      if (!title && !description && !totalQuestions && !duration && !CategoryId)
         throw { name: "NothingUpdate" };
+
       if (totalQuestions) {
         if (totalQuestions < 5 || totalQuestions > 100)
           throw { name: "InvalidQuestions" };
       }
       if (duration) {
-        if (duration < 5 || duration > 180) throw { name: "InvalidDuration" };
+        if (duration < 5 || duration > 420) throw { name: "InvalidDuration" };
       }
       const exam = await Exam.update(
         {
@@ -169,8 +178,8 @@ class examController {
           description,
           totalQuestions,
           duration,
-          isPremium,
-          closingDate,
+          CategoryId,
+          OrganizationId,
         },
         {
           where: {

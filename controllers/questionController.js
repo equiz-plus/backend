@@ -109,6 +109,10 @@ class questionController {
     try {
       const { questionInput, answersInput } = req.body;
 
+      if (!questionInput || answersInput.length === 0) {
+        throw { name: "InvalidInput" };
+      }
+
       const newQuestion = await Question.create(
         {
           question: questionInput.question,
@@ -118,6 +122,13 @@ class questionController {
           transaction: generateQuestionTransaction,
         }
       );
+
+      let answersList = answersInput;
+      answersList.forEach((answer) => {
+        answer.QuestionId = newQuestion.id;
+      });
+
+      console.log(answersList, "INI FINAL ANSWERS LIST");
 
       await Answer.bulkCreate(answersInput, {
         transaction: generateQuestionTransaction,
@@ -148,6 +159,30 @@ class questionController {
       res.status(200).json({
         message: `Question with id ${id} has been deleted`,
       });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // get question
+  // *admin
+  static async getQuestionById(req, res, next) {
+    try {
+      const { id } = req.params;
+      const question = await Question.findOne({
+        where: {
+          id: +id,
+        },
+        include: [
+          {
+            model: Answer,
+          },
+        ],
+      });
+
+      if (question <= 0) throw { name: "NotFound" };
+
+      res.status(200).json(question);
     } catch (err) {
       next(err);
     }

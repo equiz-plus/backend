@@ -1,4 +1,4 @@
-const { Op, Sequelize, or } = require("sequelize");
+const { Sequelize } = require("sequelize");
 const {
   Exam,
   Question,
@@ -8,6 +8,7 @@ const {
   Grade,
   sequelize,
   UserAnswer,
+  Category,
 } = require("../models");
 
 class userExamController {
@@ -465,7 +466,6 @@ class userExamController {
         attributes: {
           exclude: ["createdAt", "updatedAt"],
         },
-        where: { id: ExamId },
         include: [
           {
             model: Grade,
@@ -473,16 +473,24 @@ class userExamController {
             where: {
               UserId: +id,
             },
+            required: false,
           },
           {
             model: Session,
             attributes: {
               exclude: ["createdAt", "updatedAt"],
             },
+            required: false,
+          },
+          {
+            model: Category,
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
           },
         ],
+        where: { id: ExamId },
       });
-      if (!exams) throw { name: "NotFound" };
       res.status(200).json(exams);
     } catch (err) {
       next(err);

@@ -12,7 +12,9 @@ module.exports = (sequelize, DataTypes) => {
       Exam.hasMany(models.Session, { foreignKey: "ExamId" });
       Exam.hasMany(models.Grade, { foreignKey: "ExamId" });
       Exam.hasMany(models.UserAnswer, { foreignKey: "ExamId" });
-      Exam.hasMany(models.Bookmark, { foreignKey: "ExamId" });
+      Exam.hasMany(models.ExamSchedule, { foreignKey: "ExamId" });
+      Exam.hasMany(models.Certificate, { foreignKey: "ExamId" });
+      Exam.belongsTo(models.Organization, { foreignKey: "OrganizationId" });
       Exam.belongsTo(models.Category, { foreignKey: "CategoryId" });
     }
   }

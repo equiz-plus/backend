@@ -181,6 +181,7 @@ class userController {
         !gender
       )
         throw { name: "NothingUpdate" };
+
       if (password) {
         if (!oldPassword) throw { name: "OldPasswordRequired" };
         const cekPassword = await User.findByPk(id);

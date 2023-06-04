@@ -14,6 +14,28 @@ const errorHandler = (err, req, res, next) => {
     msg = err.errors[0].message;
   }
 
+  if (err.name === "SequelizeForeignKeyConstraintError") {
+    if (err.parent.detail.includes("CategoryId")) {
+      code = 400;
+      msg = "Invalid Category ID";
+    } else if (err.parent.detail.includes("UserId")) {
+      code = 400;
+      msg = "Invalid User ID";
+    } else if (err.parent.detail.includes("ExamId")) {
+      code = 400;
+      msg = "Invalid Exam ID";
+    } else if (err.parent.detail.includes("OrganizationId")) {
+      code = 400;
+      msg = "Invalid Organization ID";
+    } else if (err.parent.detail.includes("GradeId")) {
+      code = 400;
+      msg = "Invalid Grade ID";
+    } else {
+      code = 400;
+      msg = "Invalid ID";
+    }
+  }
+
   if (err.name === "NotFound") {
     code = 404;
     msg = "Not Found";
@@ -69,7 +91,7 @@ const errorHandler = (err, req, res, next) => {
 
   if (err.name === "InvalidDuration") {
     code = 400;
-    msg = "Duration minimum 5 and maximum 180 minutes";
+    msg = "Duration minimum 5 and maximum 420 minutes";
   }
 
   if (err.name === "ExamClose") {
@@ -135,6 +157,11 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === "NoQuestion") {
     code = 400;
     msg = "This exam doesn't have any questions";
+  }
+
+  if (err.name === "InvalidInput") {
+    code = 400;
+    msg = "Please check your input";
   }
 
   if (err.name === "MidtransError") {

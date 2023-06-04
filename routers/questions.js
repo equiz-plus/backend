@@ -8,6 +8,7 @@ router.use(isAdmin);
 
 router.get("/", questionController.index);
 router.post("/", questionController.create);
+router.get("/:id", questionController.getQuestionById);
 router.delete("/:id", questionController.delete);
 
 module.exports = router;

@@ -101,6 +101,8 @@ class categoryController {
     try {
       const { name } = req.body;
 
+      if (!name) throw { name: "InvalidInput" };
+
       const data = await Category.create({
         name,
       });
@@ -115,6 +117,8 @@ class categoryController {
     try {
       const { name } = req.body;
       const { id } = req.params;
+
+      if (!name) throw { name: "NothingUpdate" };
 
       const editCount = await Category.update(
         {

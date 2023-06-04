@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.Session, { foreignKey: "UserId" });
       User.hasMany(models.Grade, { foreignKey: "UserId" });
       User.hasMany(models.Transaction, { foreignKey: "UserId" });
-      User.hasMany(models.Bookmark, { foreignKey: "UserId" });
+      User.hasMany(models.Transaction, { foreignKey: "UserId" });
+      User.hasMany(models.Certificate, { foreignKey: "UserId" });
     }
   }
   User.init(
