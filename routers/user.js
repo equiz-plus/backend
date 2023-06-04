@@ -22,9 +22,9 @@ router.patch("/subscription", isLoggedIn, paymentController.subscription);
 // );
 router.put("/edit", isLoggedIn, isOwner, userController.userEdit);
 router.get("/profile", isLoggedIn, userController.userDetail);
-router.get("/detail/:id", isLoggedIn, isAdmin, userController.detail);
 
 // manage user
+router.get("/detail/:id", isLoggedIn, isAdmin, userController.detail);
 router.get("/", isLoggedIn, isAdmin, userController.usersList);
 router.delete("/:id", isLoggedIn, isAdmin, userController.delete);
 

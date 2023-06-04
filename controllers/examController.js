@@ -247,32 +247,13 @@ class examController {
   }
 
   // show exam detail
-  // *both
+  // *admin
   static async examDetail(req, res, next) {
     try {
       const { ExamId } = req.params;
-      const { id } = req.user;
 
       const exams = await Exam.findOne({
-        attributes: {
-          exclude: ["createdAt", "updatedAt"],
-        },
         where: { id: ExamId },
-        include: [
-          {
-            model: Grade,
-            attributes: ["id", "UserId", "ExamId"],
-            where: {
-              UserId: +id,
-            },
-          },
-          {
-            model: Session,
-            attributes: {
-              exclude: ["createdAt", "updatedAt"],
-            },
-          },
-        ],
       });
       if (!exams) throw { name: "NotFound" };
       res.status(200).json(exams);

@@ -6,9 +6,9 @@ class gradeController {
     try {
       const { id } = req.params;
 
-      const grade = await Grade.findOne({
+      const grade = await Grade.findAll({
         where: {
-          id: +id,
+          UserId: +id,
         },
         include: {
           model: Exam,
