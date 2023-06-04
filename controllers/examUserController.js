@@ -8,9 +8,121 @@ const {
   Grade,
   sequelize,
   UserAnswer,
+  Category,
 } = require("../models");
 
 class userExamController {
+  // exam lists
+  // *user
+  static async examLists(req, res, next) {
+    try {
+      const { page, CategoryId, displayLength, sort, order, search } =
+        req.query;
+
+      let whereCondition = {};
+
+      // set query length
+      let pagination = +displayLength;
+      if (!displayLength || isNaN(displayLength) || displayLength < 1) {
+        pagination = 10;
+      }
+
+      // set sort
+      let sortBy = sort;
+      let sortOrder = order;
+
+      if (!sortBy || sortBy !== "title") {
+        sortBy = "id";
+      } else {
+        sortBy = "title";
+      }
+
+      if (!sortOrder || sortOrder !== "ASC") {
+        sortOrder = "DESC";
+      } else {
+        sortOrder = "ASC";
+      }
+
+      let autoSort = [`${sortBy}`, `${sortOrder}`];
+
+      console.log(autoSort, "INI SORTINGAN");
+      console.log(CategoryId, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
+      // check if CategoryId input is correct
+      if (!CategoryId || isNaN(CategoryId)) {
+        whereCondition = {};
+      } else {
+        whereCondition.CategoryId = +CategoryId;
+      }
+
+      // set search
+      if (search) {
+        whereCondition.title = {
+          [Op.iLike]: `%${search}%`,
+        };
+      }
+
+      console.log(whereCondition, "INI WHERE FINAL");
+
+      // check if page number could be out of range
+      const examCount = await Exam.count({
+        where: whereCondition,
+      });
+
+      console.log(examCount, "INI TOTAL EXAM YANG DITEMUKAN");
+      console.log(page, "INI PAGE SEBELUM CORRECTION");
+
+      // page number correction
+      const totalPages = Math.ceil(examCount / pagination);
+      console.log(totalPages, "INI TOTAL PAGES");
+
+      let autoPage = 1;
+      if (page > totalPages || totalPages === 0) {
+        autoPage = totalPages;
+      } else if (page < 1 || isNaN(page)) {
+        autoPage = 1;
+      } else {
+        autoPage = +page;
+      }
+
+      console.log(autoPage, "INI FINAL AUTOPAGE");
+
+      // offset correction
+      let finalOffset = (+autoPage - 1) * pagination;
+      if (finalOffset < 0) {
+        finalOffset = 0;
+      }
+
+      // ini final query
+      const exams = await Exam.findAndCountAll({
+        attributes: {
+          exclude: ["createdAt", "updatedAt", "OrganizationId"],
+        },
+        include: [
+          {
+            model: Category,
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          },
+        ],
+        where: whereCondition,
+        order: [autoSort],
+        offset: finalOffset,
+        limit: pagination,
+      });
+
+      res.status(200).json({
+        currentPage: autoPage,
+        totalPages: totalPages,
+        totalExams: exams.count,
+        exams: exams.rows,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   // begin EXAM
   // *user
   static async start(req, res, next) {
@@ -46,24 +158,6 @@ class userExamController {
 
       if (gradeExist) throw { name: "ExamTaken" };
 
-      // if never take, create new grade entry
-      const newGrade = await Grade.create(
-        {
-          questionsCount: exam.totalQuestions,
-          totalCorrect: 0,
-          grade: 0,
-          ExamId,
-          UserId: +id,
-        },
-        {
-          transaction: generateExamTransaction,
-        }
-      );
-
-      // generate exam ending time
-      let timeStop = new Date().getTime() + exam.duration * 60000;
-      timeStop = new Date(timeStop);
-
       // get random questions for exam
       const randomQuestions = await Question.findAll(
         {
@@ -80,6 +174,24 @@ class userExamController {
       if (randomQuestions.length <= 0) {
         throw { name: "NoQuestion" };
       }
+
+      // if never take, create new grade entry
+      const newGrade = await Grade.create(
+        {
+          questionsCount: randomQuestions.length,
+          totalCorrect: 0,
+          grade: 0,
+          ExamId,
+          UserId: +id,
+        },
+        {
+          transaction: generateExamTransaction,
+        }
+      );
+
+      // generate exam ending time
+      let timeStop = new Date().getTime() + exam.duration * 60000;
+      timeStop = new Date(timeStop);
 
       // create exam session
       const session = await Session.create(
@@ -234,23 +346,27 @@ class userExamController {
   // user wanted to end the exam early
   // *user
   static async endExam(req, res, next) {
+    const endExamTransaction = await sequelize.transaction();
     try {
       const { id } = req.user;
 
       // check first if user is already in exam
-      const activeSession = await Session.findAll({
+      const activeSession = await Session.findOne({
         where: { UserId: +id },
       });
 
-      if (activeSession.length === 0) {
+      if (!activeSession) {
         throw { name: "NotFound" };
       } else {
         // execute ending session
-        await Session.destroy({
-          where: {
-            UserId: +id,
+        const destroyedSession = await Session.destroy(
+          {
+            where: {
+              id: +activeSession.id,
+            },
           },
-        });
+          { transaction: endExamTransaction }
+        );
 
         // calculate user score immediately
         const userGrade = await Grade.findOne({
@@ -274,14 +390,18 @@ class userExamController {
               UserId: +activeSession.UserId,
               ExamId: +activeSession.ExamId,
             },
-          }
+          },
+          { transaction: endExamTransaction }
         );
       }
+
+      await endExamTransaction.commit();
 
       res.status(200).json({
         message: `User ${id} current exam has ended`,
       });
     } catch (err) {
+      await endExamTransaction.rollback();
       next(err);
     }
   }
@@ -441,100 +561,6 @@ class userExamController {
           changedAnswer: updateAnswer,
         });
       }
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  // show all my previous answers
-  // *user
-  static async myAnswer(req, res, next) {
-    try {
-      const { ExamId } = req.params;
-      const { id } = req.user;
-      const { page, displayLength, order } = req.query;
-
-      let whereCondition = { UserId: +id, ExamId: +ExamId };
-
-      // set query length
-      let pagination = +displayLength;
-      if (!displayLength || isNaN(displayLength)) {
-        pagination = 10;
-      }
-
-      // set sort
-      let sortBy = "questionNumber";
-      let sortOrder = order;
-
-      if (!sortOrder || sortOrder !== "ASC") {
-        sortOrder = "DESC";
-      } else {
-        sortOrder = "ASC";
-      }
-
-      let autoSort = [`${sortBy}`, `${sortOrder}`];
-
-      console.log(autoSort, "INI SORTINGAN");
-
-      console.log(whereCondition, "INI WHERE FINAL");
-
-      // check if page number could be out of range
-      const answerCount = await Exam.count({
-        where: whereCondition,
-      });
-
-      console.log(answerCount, "INI TOTAL ANSWER YANG DITEMUKAN");
-      console.log(page, "INI PAGE SEBELUM CORRECTION");
-
-      // page number correction
-      const totalPages = Math.ceil(answerCount / pagination);
-      console.log(totalPages, "INI TOTAL PAGES");
-
-      let autoPage = 1;
-      if (page > totalPages || totalPages === 0) {
-        autoPage = totalPages;
-      } else if (page < 1 || isNaN(page)) {
-        autoPage = 1;
-      } else {
-        autoPage = +page;
-      }
-
-      console.log(autoPage, "INI FINAL AUTOPAGE");
-
-      // offset correction
-      let finalOffset = (+autoPage - 1) * pagination;
-      if (finalOffset < 0) {
-        finalOffset = 0;
-      }
-
-      // ini final query
-      const myAnswer = await UserAnswer.findAndCountAll({
-        include: [
-          {
-            model: Question,
-            attributes: {
-              exclude: ["createdAt", "updatedAt"],
-            },
-          },
-          {
-            model: Answer,
-            attributes: {
-              exclude: ["createdAt", "updatedAt"],
-            },
-          },
-        ],
-        where: whereCondition,
-        order: [autoSort],
-        offset: finalOffset,
-        limit: pagination,
-      });
-
-      res.status(200).json({
-        currentPage: autoPage,
-        totalPages: totalPages,
-        totalRows: myAnswer.count,
-        answers: myAnswer.rows,
-      });
     } catch (err) {
       next(err);
     }

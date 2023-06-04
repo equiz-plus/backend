@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.use(isLoggedIn);
 
-router.get("/", examController.examLists);
+router.get("/", isAdmin, examController.examLists);
 router.post("/", isAdmin, examController.create);
 router.patch(
   "/change-visibility/:id",
@@ -16,11 +16,11 @@ router.patch(
 
 router.get("/session", userExamController.getSession);
 router.post("/end", userExamController.endExam);
-router.get("/detail/:id", examController.examDetail);
+router.get("/detail/:ExamId", examController.examDetail);
+router.get("/list", userExamController.examLists);
 
 router.post("/start/:ExamId", userExamController.start);
 router.post("/answer/:questionNumber", userExamController.answer);
-router.get("/my-answer/:ExamId", userExamController.myAnswer);
 
 router.put("/:id", isAdmin, examController.edit);
 router.delete("/:id", isAdmin, examController.delete);

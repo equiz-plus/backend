@@ -20,13 +20,12 @@ router.patch("/subscription", isLoggedIn, paymentController.subscription);
 //   uploader.single("file"),
 //   userController.uploadFile
 // );
-router.put("/edit", isLoggedIn, userController.userEdit);
+router.put("/edit", isLoggedIn, isOwner, userController.userEdit);
 router.get("/profile", isLoggedIn, userController.userDetail);
-router.get("/detail/:id", isLoggedIn, isOwner, userController.detail);
-router.put("/setting/:id", isLoggedIn, isOwner, userController.userEdit);
+router.get("/detail/:id", isLoggedIn, isAdmin, userController.detail);
 
 // manage user
-router.get("/", isLoggedIn, userController.usersList);
+router.get("/", isLoggedIn, isAdmin, userController.usersList);
 router.delete("/:id", isLoggedIn, isAdmin, userController.delete);
 
 module.exports = router;

@@ -6,7 +6,7 @@ const router = express.Router();
 router.use(isLoggedIn);
 
 router.get("/score", gradeController.showMyGrades);
-router.get("/score/detail", isOwner, gradeController.showMyGradeDetail);
-router.get("/score/:id", isOwner, gradeController.userGradesById);
+router.get("/score/detail/:GradeId", gradeController.myAnswer);
+router.get("/score/:id", isAdmin, gradeController.userGradesById);
 
 module.exports = router;
