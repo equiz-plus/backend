@@ -3,6 +3,7 @@ const app = require("../app");
 const { deleteUser, updateToken } = require("../lib/userInit");
 const { comparePassword, hashPassword } = require("../helpers/bcrypt");
 const { deleteExam } = require("../lib/examInit");
+const { deleteCategory } = require("../lib/categoriesInit");
 
 // seeding
 // beforeAll(async () => {
@@ -13,6 +14,7 @@ const { deleteExam } = require("../lib/examInit");
 afterAll(async () => {
   await deleteUser();
   await deleteExam();
+  await deleteCategory();
 });
 
 // route for register
@@ -21,9 +23,9 @@ describe("POST /register", () => {
     const res = await request(app)
       .post("/register")
       .send({
-        email: "student@test.com",
+        email: "admin@test.com",
         password: "12345678",
-        name: "student",
+        name: "admin",
       })
       .expect(201);
 
@@ -36,9 +38,9 @@ describe("POST /register", () => {
     const res = await request(app)
       .post("/register")
       .send({
-        email: "student@test.com",
+        email: "admin@test.com",
         password: "12345678",
-        name: "student",
+        name: "admin",
       })
       .expect(400);
 
@@ -48,7 +50,7 @@ describe("POST /register", () => {
   it("should return REGISTER FAILED: Invalid email format", async () => {
     const res = await request(app)
       .post("/register")
-      .send({ email: "student", password: "12345678" })
+      .send({ email: "admin", password: "12345678" })
       .expect(400);
 
     expect(res.body.message).toBe("Invalid email format");
@@ -75,7 +77,7 @@ describe("POST /register", () => {
   it("should return register FAILED: Password is required (password empty string)", async () => {
     const res = await request(app)
       .post("/register")
-      .send({ email: "student@test.com", password: "" })
+      .send({ email: "admin@test.com", password: "" })
       .expect(400);
 
     expect(res.body.message).toBe("Password is required");
@@ -84,7 +86,7 @@ describe("POST /register", () => {
   it("should return register FAILED: Password is required (password empty space)", async () => {
     const res = await request(app)
       .post("/register")
-      .send({ email: "student@test.com", password: " " })
+      .send({ email: "admin@test.com", password: " " })
       .expect(400);
 
     expect(res.body.message).toBe("Password is required");
@@ -99,23 +101,23 @@ let token = "";
 
 describe("POST /login", () => {
   it("should return login SUCCESS", async () => {
-    mockUserValidator();
+    await mockUserValidator();
     const res = await request(app)
       .post("/login")
-      .send({ email: "student@test.com", password: "12345678" })
+      .send({ email: "admin@test.com", password: "12345678" })
       .expect(200);
 
     token = res.body.access_token;
 
     expect(typeof res.body.access_token).toBe("string");
-    expect(res.body.name).toBe("student");
+    expect(res.body.name).toBe("admin");
     expect(res.body.role).toBe("admin");
   });
 
   it("should return login FAILED: Invalid email / password (wrong password)", async () => {
     const res = await request(app)
       .post("/login")
-      .send({ email: "student@test.com", password: "87654321" })
+      .send({ email: "admin@test.com", password: "87654321" })
       .expect(401);
 
     expect(res.body.message).toBe("Invalid email / password");
@@ -140,8 +142,8 @@ describe("GET /users/profile", () => {
       .expect(200);
 
     expect(res.body.id).toBe(1);
-    expect(res.body.email).toBe("student@test.com");
-    expect(res.body.name).toBe("student");
+    expect(res.body.email).toBe("admin@test.com");
+    expect(res.body.name).toBe("admin");
   });
 
   it("should return get profile details SUCCESS", async () => {
@@ -151,8 +153,50 @@ describe("GET /users/profile", () => {
       .expect(200);
 
     expect(res.body.id).toBe(1);
-    expect(res.body.email).toBe("student@test.com");
-    expect(res.body.name).toBe("student");
+    expect(res.body.email).toBe("admin@test.com");
+    expect(res.body.name).toBe("admin");
+  });
+});
+
+// route for create category
+describe("POST /categories", () => {
+  it("should return create category SUCCESS", async () => {
+    const res = await request(app)
+      .post(`/categories`)
+      .send({
+        name: "New Category",
+      })
+      .set("access_token", token)
+      .expect(201);
+
+    expect(res.body.id).toBe(1);
+    expect(res.body.name).toBe("New Category");
+  });
+});
+
+// router for get category
+describe("GET /categories", () => {
+  it("should return get category SUCCESS", async () => {
+    const res = await request(app)
+      .get(`/categories`)
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.categories[0].id).toBe(1);
+    expect(res.body.categories[0].name).toBe("New Category");
+  });
+});
+
+// router for get category by ID
+describe("GET /categories/:id", () => {
+  it("should return get category SUCCESS", async () => {
+    const res = await request(app)
+      .get(`/categories/1`)
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.id).toBe(1);
+    expect(res.body.name).toBe("New Category");
   });
 });
 
@@ -166,7 +210,7 @@ describe("POST /exams", () => {
         description: "New Description",
         totalQuestions: 5,
         duration: 120,
-        closingDate: new Date("2023-12-17T03:24:00"),
+        CategoryId: 1,
       })
       .set("access_token", token)
       .expect(201);
@@ -175,6 +219,8 @@ describe("POST /exams", () => {
     expect(res.body.title).toBe("New Title");
     expect(res.body.description).toBe("New Description");
     expect(res.body.totalQuestions).toBe(5);
+    expect(res.body.duration).toBe(120);
+    expect(res.body.CategoryId).toBe(1);
   });
 });
 
