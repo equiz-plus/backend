@@ -1,0 +1,82 @@
+[
+  {
+    "title": "Basic Mathematics 101",
+    "description": "This basic math exam aims to evaluate a student's foundational mathematical knowledge and skills, ensuring they have a solid understanding of fundamental concepts before progressing to more advanced math topics.  \n\n Warning: Once you took this exam, you are not allowed to take it the second time.",
+    "totalQuestions": 5,
+    "CategoryId": 1,
+    "isOpen": false,
+    "duration": 90
+  },
+  {
+    "title": "Basic Science 101",
+    "description": "This basic science exam aims to evaluate a student's foundational understanding of scientific principles, concepts, and processes. It helps assess their ability to apply scientific knowledge, think critically, and communicate scientific ideas effectively. \n\n Warning: Once you took this exam, you are not allowed to take it the second time.",
+    "totalQuestions": 10,
+    "CategoryId": 2,
+    "isOpen": false,
+    "duration": 150
+  },
+  {
+    "title": "Basic Social Concept 101",
+    "description": "This basic social exam aims to evaluate a student's foundational understanding of social theories, concepts, and processes. It helps assess their ability to analyze social phenomena, think critically about social issues, and communicate their knowledge effectively. \n\n Warning: Once you took this exam, you are not allowed to take it the second time.",
+    "totalQuestions": 20,
+    "CategoryId": 3,
+    "isOpen": false,
+    "duration": 180
+  },
+  {
+    "title": "Basic Computer 101",
+    "description": "This basic computer exam aims to evaluate a student's foundational understanding of computer concepts, skills, and applications. It helps assess their ability to use computers effectively, apply technology in various contexts, and adapt to the rapidly evolving field of computer science and information technology. \n\n Warning: Once you took this exam, you are not allowed to take it the second time.",
+    "totalQuestions": 15,
+    "CategoryId": 4,
+    "isOpen": false,
+    "duration": 200
+  },
+  {
+    "title": "Basic History 101",
+    "description": "This basic history exam aims to evaluate a student's foundational understanding of historical events, themes, and concepts. It helps assess their ability to analyze historical evidence, make connections between different historical periods, and interpret the causes and consequences of major historical developments. \n\n Warning: Once you took this exam, you are not allowed to take it the second time.",
+    "totalQuestions": 30,
+    "CategoryId": 5,
+    "isOpen": false,
+    "duration": 240
+  },
+  {
+    "title": "Advanced Mathematics 201",
+    "description": "This advanced math exam aims to evaluate a student's deep understanding of advanced mathematical concepts, their ability to apply mathematical techniques to solve complex problems, and their proficiency in constructing mathematical proofs. It helps assess their readiness for more advanced study in mathematics and related fields.  \n\n Warning: Once you took this exam, you are not allowed to take it the second time.",
+    "totalQuestions": 8,
+    "CategoryId": 1,
+    "isOpen": false,
+    "duration": 160
+  },
+  {
+    "title": "Advanced Science 201",
+    "description": "This advanced science exam aims to evaluate a student's advanced understanding of scientific principles, their ability to apply scientific knowledge to complex problems, and their aptitude for scientific inquiry and analysis. It helps assess their readiness for higher-level scientific study and their potential for scientific research and innovation. \n\n Warning: Once you took this exam, you are not allowed to take it the second time.",
+    "totalQuestions": 12,
+    "CategoryId": 2,
+    "isOpen": false,
+    "duration": 210
+  },
+  {
+    "title": "Advanced Social Phenomena 201",
+    "description": "This advanced social exam aims to evaluate a student's advanced understanding of social theories, their ability to apply social concepts to complex social issues, and their skills in critically analyzing social phenomena and data. It helps assess their readiness for higher-level study in the social sciences and their potential for research and analysis in social science fields. \n\n Warning: Once you took this exam, you are not allowed to take it the second time.",
+    "totalQuestions": 27,
+    "CategoryId": 3,
+    "isOpen": false,
+    "duration": 230
+  },
+  {
+    "title": "Javascript for Professionals 201",
+    "description": "This advanced JavaScript exam aims to evaluate a programmer's deep understanding of JavaScript concepts, their ability to apply advanced programming techniques, and their skills in designing and implementing complex JavaScript applications. It helps assess their readiness for professional JavaScript development roles and their potential for advanced JavaScript programming and problem-solving. \n\n Warning: Once you took this exam, you are not allowed to take it the second time.",
+    "totalQuestions": 45,
+    "CategoryId": 4,
+    "isOpen": false,
+    "duration": 300
+  },
+  {
+    "title": "Jurassic History 201",
+    "description": "This Jurassic Era exam aims to evaluate a student's understanding of the Jurassic period's geological and paleontological characteristics. It helps assess their ability to analyze scientific data, interpret evidence from the fossil record, and provide informed explanations about the ancient ecosystems and life forms that existed during this significant era in Earth's history. \n\n Warning: Once you took this exam, you are not allowed to take it the second time.",
+    "totalQuestions": 35,
+    "CategoryId": 5,
+    "isOpen": false,
+    "duration": 260
+  }
+]
