@@ -164,6 +164,7 @@ class userExamController {
             attributes: {
               exclude: ["createdAt", "updatedAt"],
             },
+            order: [["id", "DESC"]],
             include: [
               {
                 model: Question,

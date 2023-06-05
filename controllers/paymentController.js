@@ -128,7 +128,7 @@ class paymentController {
 
       const splitPayment = order_id.split("-");
 
-      console.log(splitPayment, "INI ");
+      console.log(splitPayment, "INI SPLIT PAYMENT");
 
       const paymentId = splitPayment[1].substring(1);
 
@@ -140,9 +140,9 @@ class paymentController {
         throw { name: "NotFound" };
       }
 
-      if (findTransaction.status === "paid") {
-        throw new Error("AlreadySubscribe");
-      }
+      // if (findTransaction.status === "paid") {
+      //   throw new Error("AlreadySubscribe");
+      // }
 
       // check signature to midtrans
       const transactionData = await axios.get(
@@ -155,8 +155,6 @@ class paymentController {
           },
         }
       );
-
-      console.log(transactionData, "INI TRANSCATION RETURN");
 
       const transactionId = transactionData.data.transaction_id;
 
@@ -184,21 +182,26 @@ class paymentController {
           }
         );
 
-        let totalDays = order_id.substring(17);
+        let totalDays = splitPayment[2];
 
-        const updateBalance = await User.increment(
+        console.log(totalDays, "INI TOTAL DAYS");
+
+        let expiredDate = new Date().getDay() + Number(totalDays);
+        expiredDate = new Date(expiredDate);
+
+        const updateBalance = await User.update(
           {
-            premiumExpiry: +totalDays * 24 * 3600 * 1000,
+            premiumExpiry: expiredDate,
           },
           {
             where: {
-              id: +findDeposit.UserId,
+              id: +findTransaction.UserId,
             },
           }
         );
 
         res.status(200).json({
-          message: `${totalDays} days added to User ID ${findDeposit.UserId} subscription`,
+          message: `${totalDays} days added to User ID ${findTransaction.UserId} subscription`,
         });
       } else if (
         transaction_status === "deny" ||
