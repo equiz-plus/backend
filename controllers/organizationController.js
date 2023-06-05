@@ -133,9 +133,9 @@ class organizationController {
   static async organizationEdit(req, res, next) {
     try {
       const { id } = req.params;
-      const { name, address, logo, pic, sign } = req.body;
+      const { name, address, logo, pic, sign, prefix } = req.body;
 
-      if (!name && !address && !logo && !pic && !sign)
+      if (!name && !address && !logo && !pic && !sign && !prefix)
         throw { name: "NothingUpdate" };
 
       const organization = await Organization.update(
