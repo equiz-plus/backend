@@ -1,4 +1,4 @@
-const { Sequelize, or } = require("sequelize");
+const { Sequelize } = require("sequelize");
 const {
   Exam,
   Question,
@@ -49,6 +49,7 @@ class userExamController {
 
       if (gradeExist) throw { name: "ExamTaken" };
 
+      // TODO: CHECK IF THIS IS REALLY RANDOM !
       // get random questions for exam
       const randomQuestions = await Question.findAll(
         {
@@ -108,6 +109,8 @@ class userExamController {
         questionNumber++;
       });
 
+      // TODO: CHECK questionGroups IF THIS IS REALLY RANDOM !
+
       await QuestionGroup.bulkCreate(questionGroups, {
         transaction: generateExamTransaction,
       });
@@ -164,7 +167,6 @@ class userExamController {
             attributes: {
               exclude: ["createdAt", "updatedAt"],
             },
-            order: [["id", "DESC"]],
             include: [
               {
                 model: Question,
@@ -188,6 +190,7 @@ class userExamController {
             ],
           },
         ],
+        order: [[QuestionGroup, "questionNumber", "ASC"]],
       });
 
       if (activeSession) {
