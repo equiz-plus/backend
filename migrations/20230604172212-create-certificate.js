@@ -9,13 +9,12 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      certificateNo: {
+        type: Sequelize.STRING,
+      },
       publishedDate: {
         allowNull: false,
         type: Sequelize.DATE,
-      },
-      OrganizationId: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
       },
       UserId: {
         allowNull: false,
@@ -31,6 +30,9 @@ module.exports = {
       },
       QRcode: {
         allowNull: false,
+        type: Sequelize.STRING,
+      },
+      slug: {
         type: Sequelize.STRING,
       },
       createdAt: {

@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { Certificate } = require("../models");
+const { Certificate, Organization } = require("../models");
 
 class certificateController {
   // get all certificates data
@@ -95,99 +95,6 @@ class certificateController {
         },
       });
       res.status(200).json(certificate);
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  // delete certificate
-  // *admin
-  static async certificateDelete(req, res, next) {
-    try {
-      const id = +req.params.id;
-      const certificate = await Certificate.destroy({
-        where: {
-          id,
-        },
-      });
-
-      if (certificate <= 0) throw { name: "NotFound" };
-
-      res.status(200).json({
-        message: `Certificate with id ${id} has been deleted`,
-      });
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  // method for edit data certificate
-  // *admin
-  static async certificateEdit(req, res, next) {
-    try {
-      const { id } = req.params;
-      const { publishedDate, OrganizationId, UserId, ExamId, GradeId, QRcode } =
-        req.body;
-
-      if (
-        !publishedDate &&
-        !OrganizationId &&
-        !UserId &&
-        !ExamId &&
-        !GradeId &&
-        !QRcode
-      )
-        throw { name: "NothingUpdate" };
-
-      const certificate = await certificate.update(
-        {
-          publishedDate,
-          OrganizationId,
-          UserId,
-          ExamId,
-          GradeId,
-          QRcode,
-        },
-        {
-          where: {
-            id,
-          },
-        }
-      );
-
-      res.status(200).json({
-        message: "Certificate data has been updated",
-      });
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  static async createCertificate(req, res, next) {
-    try {
-      const { publishedDate, OrganizationId, UserId, ExamId, GradeId, QRcode } =
-        req.body;
-
-      if (
-        !publishedDate ||
-        !OrganizationId ||
-        !UserId ||
-        !ExamId ||
-        !GradeId ||
-        !QRcode
-      )
-        throw { name: "InvalidInput" };
-
-      const data = await Certificate.create({
-        publishedDate,
-        OrganizationId,
-        UserId,
-        ExamId,
-        GradeId,
-        QRcode,
-      });
-
-      res.status(201).json(data);
     } catch (err) {
       next(err);
     }

@@ -10,9 +10,6 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Certificate.belongsTo(models.Exam, { foreignKey: "ExamId" });
-      Certificate.belongsTo(models.Organization, {
-        foreignKey: "OrganizationId",
-      });
       Certificate.belongsTo(models.User, { foreignKey: "UserId" });
       Certificate.belongsTo(models.Grade, { foreignKey: "GradeId" });
     }
@@ -28,18 +25,6 @@ module.exports = (sequelize, DataTypes) => {
           },
           notEmpty: {
             msg: "Published date cannot be empty",
-          },
-        },
-      },
-      OrganizationId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        validate: {
-          notNull: {
-            msg: "Organization ID cannot be empty",
-          },
-          notEmpty: {
-            msg: "Organization ID cannot be empty",
           },
         },
       },
@@ -90,6 +75,12 @@ module.exports = (sequelize, DataTypes) => {
             msg: "QR code cannot be empty",
           },
         },
+      },
+      slug: {
+        type: DataTypes.STRING,
+      },
+      certificateNo: {
+        type: DataTypes.STRING,
       },
     },
     {

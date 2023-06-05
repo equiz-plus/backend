@@ -8,9 +8,6 @@ router.use(isLoggedIn);
 router.use(isAdmin);
 
 router.get("/", certificateController.certificateList);
-router.post("/", certificateController.createCertificate);
 router.get("/:id", certificateController.certificateDetail);
-router.put("/:id", certificateController.certificateEdit);
-router.delete("/:id", certificateController.certificateDelete);
 
 module.exports = router;

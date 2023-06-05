@@ -145,6 +145,7 @@ class organizationController {
           logo,
           pic,
           sign,
+          prefix,
         },
         {
           where: {
@@ -163,7 +164,7 @@ class organizationController {
 
   static async createOrganization(req, res, next) {
     try {
-      const { name, address, logo, pic, sign } = req.body;
+      const { name, address, logo, pic, sign, prefix } = req.body;
 
       if (!name || !address || !logo || !pic || !sign)
         throw { name: "InvalidInput" };
@@ -174,6 +175,7 @@ class organizationController {
         logo,
         pic,
         sign,
+        prefix: prefix?.toUpperCase() || "EQZ",
       });
 
       res.status(201).json(data);

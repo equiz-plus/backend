@@ -1,4 +1,4 @@
-const { Sequelize } = require("sequelize");
+const { Sequelize, or } = require("sequelize");
 const {
   Exam,
   Question,
@@ -9,6 +9,8 @@ const {
   sequelize,
   UserAnswer,
   Category,
+  Certificate,
+  Organization,
 } = require("../models");
 
 class userExamController {
@@ -129,7 +131,11 @@ class userExamController {
   // get back on current exam session, in case of power failure
   // *user
   static async getSession(req, res, next) {
+    const getSessionTransaction = await sequelize.transaction();
     try {
+      const passingGrade = 70;
+      let status = "Failed";
+
       const { id } = req.user;
       const activeSession = await Session.findOne({
         where: {
@@ -189,11 +195,16 @@ class userExamController {
 
         if (activeSession.timeStop < now) {
           // execute ending session
-          await Session.destroy({
-            where: {
-              UserId: +id,
+          await Session.destroy(
+            {
+              where: {
+                UserId: +id,
+              },
             },
-          });
+            {
+              transaction: getSessionTransaction,
+            }
+          );
 
           // calculate use score immediately
           const userGrade = await Grade.findOne({
@@ -217,16 +228,104 @@ class userExamController {
                 UserId: +activeSession.UserId,
                 ExamId: +activeSession.ExamId,
               },
+            },
+            {
+              transaction: getSessionTransaction,
             }
           );
 
-          throw { name: "TimeOver" };
+          // print certificate
+          if (resultScore >= passingGrade) {
+            // find organization
+            let organizationPrefix = "EQZ";
+
+            const organization = await Organization.findOne({
+              where: {
+                id: +activeSession.Exam.OrganizationId,
+              },
+            });
+
+            console.log(organization, "INI ORGANIZATION");
+
+            // does organization exist?
+            if (organization) {
+              if (organization.prefix) {
+                organizationPrefix = organization.prefix;
+              }
+            }
+
+            let QRcode = "QRCODE";
+
+            // create new certificate
+            const newCertificate = await Certificate.create({
+              publishedDate: new Date(),
+              UserId: +id,
+              ExamId: +activeSession.Exam.id,
+              GradeId: +userGrade.id,
+              QRcode: QRcode,
+            });
+
+            console.log(newCertificate, "INI NEW CERTIFICATE");
+
+            console.log(newCertificate.publishedDate, "INI PUBLISHED DATE");
+
+            let certId = newCertificate.id.toString();
+            let month = newCertificate.publishedDate
+              .toISOString()
+              .substring(5, 7);
+            let year = newCertificate.publishedDate
+              .toISOString()
+              .substring(0, 4);
+
+            console.log(certId, "INI CERT ID");
+
+            if (certId.length === 1) {
+              certId = `000${certId}`;
+            } else if (certId.length === 2) {
+              certId = `00${certId}`;
+            } else if (certId.length === 3) {
+              certId = `0${certId.id}`;
+            }
+
+            console.log(certId, "INI CERTIFICATE ID");
+
+            const certNo = `CERT/${certId}/${organizationPrefix}/${month}/${year}`;
+            const slug = certNo.split("/").join("-");
+
+            console.log(certNo, "INI CERT NO");
+            console.log(slug, "INI CERT SLUG");
+            console.log(process.env.BASE_URL, "INI BASE URL");
+
+            const updateNo = await Certificate.update(
+              {
+                certificateNo: certNo,
+                slug: slug,
+                QRcode: `${process.env.BASE_URL}/certificates/${slug}`,
+              },
+              {
+                where: {
+                  id: +certId,
+                },
+              }
+            );
+
+            if (updateNo <= 0) {
+              throw { name: "NothingUpdate" };
+            }
+            // change message to passed
+            status = "Passed";
+          }
+
+          res.status(200).json({
+            message: "Exam has ended",
+            status: status,
+          });
+        } else {
+          res.status(200).json(activeSession);
         }
       } else {
         throw { name: "NotFound" };
       }
-
-      res.status(200).json(activeSession);
     } catch (err) {
       next(err);
     }
@@ -237,26 +336,24 @@ class userExamController {
   static async endExam(req, res, next) {
     const endExamTransaction = await sequelize.transaction();
     try {
+      const passingGrade = 70;
+      let status = "Failed";
+
       const { id } = req.user;
 
       // check first if user is already in exam
       const activeSession = await Session.findOne({
+        include: [
+          {
+            model: Exam,
+          },
+        ],
         where: { UserId: +id },
       });
 
       if (!activeSession) {
         throw { name: "NotFound" };
       } else {
-        // execute ending session
-        const destroyedSession = await Session.destroy(
-          {
-            where: {
-              id: +activeSession.id,
-            },
-          },
-          { transaction: endExamTransaction }
-        );
-
         // calculate user score immediately
         const userGrade = await Grade.findOne({
           attributes: ["id", "questionsCount", "totalCorrect"],
@@ -270,6 +367,7 @@ class userExamController {
           (userGrade.totalCorrect / userGrade.questionsCount) * 100
         );
 
+        // update score
         const finalScore = await Grade.update(
           {
             grade: Math.round(resultScore),
@@ -282,12 +380,103 @@ class userExamController {
           },
           { transaction: endExamTransaction }
         );
+
+        // print certificate
+        if (resultScore >= passingGrade) {
+          // find organization
+          let organizationPrefix = "EQZ";
+
+          const organization = await Organization.findOne({
+            where: {
+              id: +activeSession.Exam.OrganizationId,
+            },
+          });
+
+          console.log(organization, "INI ORGANIZATION");
+
+          // does organization exist?
+          if (organization) {
+            if (organization.prefix) {
+              organizationPrefix = organization.prefix;
+            }
+          }
+
+          let QRcode = "QRCODE";
+
+          // create new certificate
+          const newCertificate = await Certificate.create({
+            publishedDate: new Date(),
+            UserId: +id,
+            ExamId: +activeSession.Exam.id,
+            GradeId: +userGrade.id,
+            QRcode: QRcode,
+          });
+
+          console.log(newCertificate, "INI NEW CERTIFICATE");
+
+          console.log(newCertificate.publishedDate, "INI PUBLISHED DATE");
+
+          let certId = newCertificate.id.toString();
+          let month = newCertificate.publishedDate
+            .toISOString()
+            .substring(5, 7);
+          let year = newCertificate.publishedDate.toISOString().substring(0, 4);
+
+          console.log(certId, "INI CERT ID");
+
+          if (certId.length === 1) {
+            certId = `000${certId}`;
+          } else if (certId.length === 2) {
+            certId = `00${certId}`;
+          } else if (certId.length === 3) {
+            certId = `0${certId.id}`;
+          }
+
+          console.log(certId, "INI CERTIFICATE ID");
+
+          const certNo = `CERT/${certId}/${organizationPrefix}/${month}/${year}`;
+          const slug = certNo.split("/").join("-");
+
+          console.log(certNo, "INI CERT NO");
+          console.log(slug, "INI CERT SLUG");
+          console.log(process.env.BASE_URL, "INI BASE URL");
+
+          const updateNo = await Certificate.update(
+            {
+              certificateNo: certNo,
+              slug: slug,
+              QRcode: `${process.env.BASE_URL}/certificates/${slug}`,
+            },
+            {
+              where: {
+                id: +certId,
+              },
+            }
+          );
+
+          if (updateNo <= 0) {
+            throw { name: "NothingUpdate" };
+          }
+          // change message to passed
+          status = "Passed";
+        }
+
+        // execute ending session
+        const destroyedSession = await Session.destroy(
+          {
+            where: {
+              id: +activeSession.id,
+            },
+          },
+          { transaction: endExamTransaction }
+        );
       }
 
       await endExamTransaction.commit();
 
       res.status(200).json({
         message: `User ${id} current exam has ended`,
+        status: status,
       });
     } catch (err) {
       await endExamTransaction.rollback();

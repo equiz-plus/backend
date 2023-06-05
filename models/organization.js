@@ -54,6 +54,12 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: { msg: "Organization sign is required" },
         },
       },
+      prefix: {
+        type: DataTypes.STRING,
+        validate: {
+          len: [0, 4],
+        },
+      },
     },
     {
       sequelize,
