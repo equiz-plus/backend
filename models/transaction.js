@@ -18,6 +18,9 @@ module.exports = (sequelize, DataTypes) => {
       token: DataTypes.STRING,
       paymentUrl: DataTypes.STRING,
       status: DataTypes.STRING,
+      ProductId: DataTypes.INTEGER,
+      orderId: DataTypes.STRING,
+      amount: DataTypes.INTEGER,
     },
     {
       sequelize,

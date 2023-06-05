@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { Certificate, Organization } = require("../models");
+const { Certificate, Organization, Exam, User, Grade } = require("../models");
 
 class certificateController {
   // get all certificates data
@@ -88,11 +88,29 @@ class certificateController {
   // *admin
   static async certificateDetail(req, res, next) {
     try {
-      const { id } = req.params;
+      const { slug } = req.params;
       const certificate = await Certificate.findOne({
         where: {
-          id,
+          slug,
         },
+        include: [
+          {
+            model: Exam,
+            attributes: ["title"],
+            include: {
+              model: Organization,
+              required: false,
+            },
+          },
+          {
+            model: User,
+            attributes: ["name"],
+          },
+          {
+            model: Grade,
+            attributes: ["grade"],
+          },
+        ],
       });
       res.status(200).json(certificate);
     } catch (err) {

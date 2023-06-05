@@ -3,15 +3,6 @@ const { userController } = require("../controllers");
 const { isLoggedIn, isAdmin, isOwner } = require("../middlewares");
 const router = express.Router();
 const uploader = require("../helpers/multer");
-const paymentController = require("../controllers/paymentController");
-
-// payment systems
-router.post(
-  "/generate-subscription-token",
-  isLoggedIn,
-  paymentController.generateMitransToken
-);
-router.patch("/subscription", isLoggedIn, paymentController.subscription);
 
 // profile customization
 // router.post(

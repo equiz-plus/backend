@@ -126,6 +126,8 @@ class authController {
         access_token,
         role: user.role,
         name: user.name,
+        avatar: user.avatar,
+        email: user.email,
       });
     } catch (err) {
       next(err);

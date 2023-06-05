@@ -7,6 +7,7 @@ const grades = require("./grades.js");
 const categories = require("./category.js");
 const organizations = require("./organizations.js");
 const certificates = require("./certificates.js");
+const payment = require("./payment.js");
 const authController = require("../controllers/authController");
 
 router.post("/register", authController.register);
@@ -20,5 +21,6 @@ router.use("/grades", grades);
 router.use("/categories", categories);
 router.use("/organizations", organizations);
 router.use("/certificates", certificates);
+router.use("/payment", payment);
 
 module.exports = router;

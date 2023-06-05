@@ -4,10 +4,7 @@ const certificateController = require("../controllers/certificateController");
 
 const router = express.Router();
 
-router.use(isLoggedIn);
-router.use(isAdmin);
-
-router.get("/", certificateController.certificateList);
-router.get("/:id", certificateController.certificateDetail);
+router.get("/", isLoggedIn, isAdmin, certificateController.certificateList);
+router.get("/:slug", certificateController.certificateDetail);
 
 module.exports = router;

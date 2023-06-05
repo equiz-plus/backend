@@ -36,6 +36,11 @@ const errorHandler = (err, req, res, next) => {
     }
   }
 
+  if (err.name === "InvalidAmount") {
+    code = 400;
+    msg = "Invalid payment amount";
+  }
+
   if (err.name === "NotFound") {
     code = 404;
     msg = "Not Found";
