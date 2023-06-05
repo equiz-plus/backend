@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for backend/models/user.js</title>
+    <title>Code coverage report for backend/models/organization.js</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../prettify.css" />
     <link rel="stylesheet" href="../../base.css" />
@@ -19,13 +19,13 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../index.html">All files</a> / <a href="index.html">backend/models</a> user.js</h1>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">backend/models</a> organization.js</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -133,27 +133,7 @@
 <a name='L68'></a><a href='#L68'>68</a>
 <a name='L69'></a><a href='#L69'>69</a>
 <a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L71'></a><a href='#L71'>71</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -164,10 +144,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -224,28 +200,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">"use strict";
 const { Model } = require("sequelize");
-const { hashPassword } = require("../helpers");
 module.exports = (sequelize, DataTypes) =&gt; {
-  class User extends Model {
+  class Organization extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -253,82 +214,64 @@ module.exports = (sequelize, DataTypes) =&gt; {
      */
     static associate(models) {
       // define association here
-      User.hasMany(models.Session, { foreignKey: "UserId" });
-      User.hasMany(models.Grade, { foreignKey: "UserId" });
-      User.hasMany(models.Transaction, { foreignKey: "UserId" });
-      User.hasMany(models.Transaction, { foreignKey: "UserId" });
-      User.hasMany(models.Certificate, { foreignKey: "UserId" });
+      Organization.hasMany(models.Exam, { foreignKey: "id" });
     }
   }
-  User.init(
+  Organization.init(
     {
-      username: {
+      name: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          notNull: {
-            msg: "Username is required",
-          },
-          notEmpty: {
-            msg: "Username is required",
-          },
-        },
-        unique: {
-          msg: "Username has been taken",
+          notNull: { msg: "Organization name is required" },
+          notEmpty: { msg: "Organization name is required" },
         },
       },
-      email: {
+      address: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          notNull: {
-            msg: "Email is required",
-          },
-          notEmpty: {
-            msg: "Email is required",
-          },
-          isEmail: {
-            msg: "Invalid email format",
-          },
-        },
-        unique: {
-          msg: "Email has been taken",
+          notNull: { msg: "Organization address is required" },
+          notEmpty: { msg: "Organization address is required" },
         },
       },
-      password: {
+      logo: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          notNull: {
-            msg: "Password is required",
-          },
-          notEmpty: {
-            msg: "Password is required",
-          },
-          len: {
-            args: [8],
-            msg: "Password at least 8 characters",
-          },
+          notNull: { msg: "Organization logo is required" },
+          notEmpty: { msg: "Organization logo is required" },
         },
       },
-      phone: DataTypes.STRING,
-      name: DataTypes.STRING,
-      gender: DataTypes.STRING,
-      avatar: DataTypes.STRING,
-      role: DataTypes.STRING,
-      isPremium: DataTypes.BOOLEAN,
-      tokenKey: DataTypes.STRING,
-      premiumExpiry: DataTypes.DATE,
+      pic: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "Organization PIC is required" },
+          notEmpty: { msg: "Organization PIC is required" },
+        },
+      },
+      sign: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "Organization sign is required" },
+          notEmpty: { msg: "Organization sign is required" },
+        },
+      },
+      prefix: {
+        type: DataTypes.STRING,
+        validate: {
+          len: [0, 4],
+        },
+      },
     },
     {
       sequelize,
-      modelName: "User",
+      modelName: "Organization",
     }
   );
-  User.beforeCreate((user) =&gt; {
-    user.password = hashPassword(user.password);
-  });
-  return User;
+  return Organization;
 };
 &nbsp;</pre></td></tr></table></pre>
 

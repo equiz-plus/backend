@@ -145,7 +145,9 @@ describe("GET /users/profile", () => {
     expect(res.body.email).toBe("admin@test.com");
     expect(res.body.name).toBe("admin");
   });
+});
 
+describe("GET /users/profile/:id", () => {
   it("should return get profile details SUCCESS", async () => {
     const res = await request(app)
       .get(`/users/detail/${1}`)
@@ -200,6 +202,21 @@ describe("GET /categories/:id", () => {
   });
 });
 
+// router for edit category by ID
+describe("PUT /categories", () => {
+  it("should return edit category SUCCESS", async () => {
+    const res = await request(app)
+      .put(`/categories/1`)
+      .send({
+        name: "New Category Edit",
+      })
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("Category with id 1 has been updated");
+  });
+});
+
 // route for creating an exam
 describe("POST /exams", () => {
   it("should return create exam SUCCESS", async () => {
@@ -224,14 +241,110 @@ describe("POST /exams", () => {
   });
 });
 
-// route for changing exam to open
-it("should return patch exam SUCCESS: Exam status now open/close", async () => {
-  const res = await request(app)
-    .patch(`/exams/change-visibility/1`)
-    .set("access_token", token)
-    .expect(200);
+// router for get an exam
+describe("GET /exams", () => {
+  it("should return get exam SUCCESS", async () => {
+    const res = await request(app)
+      .get(`/exams`)
+      .set("access_token", token)
+      .expect(200);
 
-  expect(res.body.message).toBe("Exam status now open");
+    expect(res.body.exams[0].id).toBe(1);
+    expect(res.body.exams[0].title).toBe("New Title");
+    expect(res.body.exams[0].description).toBe("New Description");
+    expect(res.body.exams[0].totalQuestions).toBe(5);
+    expect(res.body.exams[0].duration).toBe(120);
+    expect(res.body.exams[0].CategoryId).toBe(1);
+  });
+});
+
+// route for edit an exam
+describe("PUT /exams", () => {
+  it("should return edit exam SUCCESS", async () => {
+    const res = await request(app)
+      .put(`/exams/1`)
+      .send({
+        title: "New Title Edit",
+        description: "New Description Edit",
+        totalQuestions: 10,
+        duration: 150,
+        CategoryId: 1,
+      })
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("Exam has been updated");
+  });
+});
+
+// route for changing exam to open
+describe("PATCH /exams/change-visibility/:id", () => {
+  it("should return patch exam SUCCESS: Exam status now open/close", async () => {
+    const res = await request(app)
+      .patch(`/exams/change-visibility/1`)
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("Exam status now open");
+  });
+});
+
+// route for adding questions
+describe("POST /questions", () => {
+  it("should return create question SUCCESS", async () => {
+    const res = await request(app)
+      .post(`/questions`)
+      .send({
+        questionInput: {
+          question: "Spongebob lives in...",
+          CategoryId: 1,
+        },
+        answersInput: [
+          {
+            answer: "Bikini Bottom",
+            isCorrect: "true",
+          },
+          {
+            answer: "The Cloverfield",
+            isCorrect: "false",
+          },
+        ],
+      })
+      .set("access_token", token)
+      .expect(201);
+
+    expect(res.body.id).toBe(1);
+    expect(res.body.question).toBe("Spongebob lives in...");
+    expect(res.body.CategoryId).toBe(1);
+  });
+});
+
+// route for get questions list
+describe("GET /questions", () => {
+  it("should return get questions SUCCESS", async () => {
+    const res = await request(app)
+      .get(`/questions`)
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.questions[0].id).toBe(1);
+    expect(res.body.questions[0].question).toBe("Spongebob lives in...");
+    expect(res.body.questions[0].CategoryId).toBe(1);
+  });
+});
+
+// route for get question 1
+describe("GET /questions/1", () => {
+  it("should return get question by ID SUCCESS", async () => {
+    const res = await request(app)
+      .get(`/questions/1`)
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.id).toBe(1);
+    expect(res.body.question).toBe("Spongebob lives in...");
+    expect(res.body.CategoryId).toBe(1);
+  });
 });
 
 // route for starting an exam
@@ -241,7 +354,9 @@ describe("POST /exams/start/:id", () => {
       .post(`/exams/start/1`)
       .set("access_token", token)
       .expect(200);
-  }, 30000);
+
+    console.log(res, "INI EROR START");
+  });
 });
 
 // router for answering an exam
