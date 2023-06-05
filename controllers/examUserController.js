@@ -134,7 +134,6 @@ class userExamController {
   // get back on current exam session, in case of power failure
   // *user
   static async getSession(req, res, next) {
-    const getSessionTransaction = await sequelize.transaction();
     try {
       const passingGrade = 70;
       let status = "Failed";
@@ -199,16 +198,11 @@ class userExamController {
 
         if (activeSession.timeStop < now) {
           // execute ending session
-          await Session.destroy(
-            {
-              where: {
-                UserId: +id,
-              },
+          await Session.destroy({
+            where: {
+              UserId: +id,
             },
-            {
-              transaction: getSessionTransaction,
-            }
-          );
+          });
 
           // calculate use score immediately
           const userGrade = await Grade.findOne({
@@ -232,9 +226,6 @@ class userExamController {
                 UserId: +activeSession.UserId,
                 ExamId: +activeSession.ExamId,
               },
-            },
-            {
-              transaction: getSessionTransaction,
             }
           );
 
