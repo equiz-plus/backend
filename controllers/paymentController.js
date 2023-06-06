@@ -82,6 +82,8 @@ class paymentController {
 
   static async paymentNotification(req, res, next) {
     try {
+      console.log(req.body, "INI RESPONSE MIDTRANS");
+
       const { order_id, transaction_status, transaction_id } = req.body;
       const splitPayment = order_id.split("-");
       const paymentId = splitPayment[1].substring(1);
