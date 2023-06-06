@@ -1,4 +1,11 @@
-const { Exam, Grade, Answer, UserAnswer, Question } = require("../models");
+const {
+  Exam,
+  Grade,
+  Answer,
+  UserAnswer,
+  Question,
+  Certificate,
+} = require("../models");
 class gradeController {
   // find user grade by id
   // *admin
@@ -32,12 +39,21 @@ class gradeController {
           exclude: ["isOpen"],
         },
         where: { UserId },
-        include: {
-          model: Exam,
-          attributes: {
-            exclude: ["createdAt", "updatedAt"],
+        include: [
+          {
+            model: Exam,
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
           },
-        },
+          {
+            model: Certificate,
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+            require: false,
+          },
+        ],
       });
 
       res.status(200).json(grades);
@@ -77,16 +93,30 @@ class gradeController {
       const { page, displayLength, order } = req.query;
 
       // find specific grade
-      const findGrade = await Grade.findByPk(+GradeId, {
-        include: [
-          {
-            model: Exam,
-            attributes: {
-              exclude: ["createdAt", "updatedAt"],
+      const findGrade = await Grade.findOne(
+        {
+          include: [
+            {
+              model: Exam,
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
             },
+            {
+              model: Certificate,
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+              require: false,
+            },
+          ],
+        },
+        {
+          where: {
+            id: +GradeId,
           },
-        ],
-      });
+        }
+      );
 
       if (!findGrade) {
         throw { name: "NotFound" };
@@ -164,6 +194,7 @@ class gradeController {
         totalPages: totalPages,
         userScore: findGrade.grade,
         exam: findGrade.Exam,
+        certificate: findGrade.Certificates,
         correctAnswers: findGrade.totalCorrect,
         totalAnswers: myAnswer.count,
         answers: myAnswer.rows,

@@ -144,7 +144,13 @@ class paymentController {
 
         console.log(totalDays, "INI TOTAL DAYS");
 
-        let currentExpiry = new Date(findTransaction.User.premiumExpiry);
+        let currentExpiry;
+
+        if (findTransaction.User.premiumExpiry === null) {
+          currentExpiry = new Date();
+        } else {
+          currentExpiry = new Date(findTransaction.User.premiumExpiry);
+        }
 
         console.log(currentExpiry, "INI CURRENT EXPIRY");
 
