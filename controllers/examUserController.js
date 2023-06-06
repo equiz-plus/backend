@@ -43,7 +43,7 @@ class userExamController {
         },
       });
 
-      if (user.isPremium === false && user.Grades.length <= 10) {
+      if (user.isPremium === false && user.Grades.length >= 10) {
         throw { name: "NotPremium" };
       }
 
