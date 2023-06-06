@@ -17,9 +17,7 @@ class paymentController {
       let amount = 0;
       let product = 0;
 
-      if (!length || isNaN(length)) {
-        throw { name: "InvalidAmount" };
-      } else if (length === "30") {
+      if (length === "30") {
         amount = 300000;
         product = 30;
       } else if (length === "180") {
@@ -28,6 +26,8 @@ class paymentController {
       } else if (length === "365") {
         amount = 2000000;
         product = 360;
+      } else {
+        throw { name: "InvalidAmount" };
       }
 
       const newPayment = await Transaction.create({
