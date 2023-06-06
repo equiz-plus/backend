@@ -95,27 +95,6 @@ class paymentController {
     }
   }
 
-  static async subscription(req, res, next) {
-    try {
-      const { id } = req.user;
-      const user = await User.update(
-        {
-          isPremium: true,
-        },
-        {
-          where: {
-            id,
-          },
-        }
-      );
-      res.status(200).json({
-        message: "You are premium now",
-      });
-    } catch (err) {
-      next(err);
-    }
-  }
-
   static async paymentNotification(req, res, next) {
     try {
       console.log(req.body, "INI KEMBALIAN MIDTRANS");
@@ -140,27 +119,23 @@ class paymentController {
         throw { name: "NotFound" };
       }
 
-      // if (findTransaction.status === "paid") {
-      //   throw new Error("AlreadySubscribe");
-      // }
-
       // check signature to midtrans
-      const transactionData = await axios.get(
-        `https://api.sandbox.midtrans.com/v2/${order_id}/status`,
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: `${process.env.MIDTRANS_AUTH}`,
-          },
-        }
-      );
+      // const transactionData = await axios.get(
+      //   `https://api.sandbox.midtrans.com/v2/${order_id}/status`,
+      //   {
+      //     headers: {
+      //       Accept: "application/json",
+      //       "Content-Type": "application/json",
+      //       Authorization: `${process.env.MIDTRANS_AUTH}`,
+      //     },
+      //   }
+      // );
 
-      const transactionId = transactionData.data.transaction_id;
+      // const transactionId = transactionData.data.transaction_id;
 
-      if (transactionId !== transaction_id) {
-        throw new Error("CANNOT_ACCESS");
-      }
+      // if (transactionId !== transaction_id) {
+      //   throw new Error("CANNOT_ACCESS");
+      // }
 
       if (
         transaction_status === "settlement" ||

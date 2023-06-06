@@ -101,6 +101,11 @@ class organizationController {
           id,
         },
       });
+
+      if (!organization) {
+        throw { name: "NotFound" };
+      }
+
       res.status(200).json(organization);
     } catch (err) {
       next(err);

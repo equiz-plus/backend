@@ -381,18 +381,20 @@ class userExamController {
           // find organization
           let organizationPrefix = "EQZ";
 
-          const organization = await Organization.findOne({
-            where: {
-              id: +activeSession.Exam.OrganizationId,
-            },
-          });
-
-          console.log(organization, "INI ORGANIZATION");
-
           // does organization exist?
-          if (organization) {
-            if (organization.prefix) {
-              organizationPrefix = organization.prefix;
+          if (activeSession.Exam.OrganizationId) {
+            const organization = await Organization.findOne({
+              where: {
+                id: +activeSession.Exam.OrganizationId,
+              },
+            });
+
+            console.log(organization, "INI ORGANIZATION");
+
+            if (organization) {
+              if (organization.prefix) {
+                organizationPrefix = organization.prefix;
+              }
             }
           }
 
@@ -631,7 +633,7 @@ class userExamController {
         }
 
         res.status(200).json({
-          changedAnswer: updateAnswer,
+          message: `Answer changed to ${AnswerId}`,
         });
       }
     } catch (err) {
@@ -675,6 +677,9 @@ class userExamController {
         ],
         where: { id: ExamId },
       });
+
+      if (!exams) throw { name: "NotFound" };
+
       res.status(200).json(exams);
     } catch (err) {
       next(err);

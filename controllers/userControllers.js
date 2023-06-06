@@ -109,6 +109,11 @@ class userController {
           exclude: ["password"],
         },
       });
+
+      if (!user) {
+        throw { name: "NotFound" };
+      }
+
       res.status(200).json(user);
     } catch (err) {
       next(err);

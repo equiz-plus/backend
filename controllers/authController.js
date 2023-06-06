@@ -47,9 +47,6 @@ class authController {
       if (req.body.token) {
         tokenKey = req.body.token;
         email = req.body.email;
-      } else if (req.query.token) {
-        tokenKey = req.query.token;
-        email = req.query.email;
       } else {
         throw { name: "TokenRequired" };
       }

@@ -17,11 +17,11 @@ const {
 class scheduleController {
   static async createSchedule(req, res, next) {
     try {
-      const { id, ExamId, startingDate, endDate } = req.body;
+      const { ExamId, startingDate, endDate } = req.body;
 
       const findExam = await Exam.findOne({
         where: {
-          id: +id,
+          id: ExamId,
         },
       });
 

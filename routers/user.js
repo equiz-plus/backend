@@ -1,6 +1,6 @@
 const express = require("express");
 const { userController } = require("../controllers");
-const { isLoggedIn, isAdmin, isOwner } = require("../middlewares");
+const { isLoggedIn, isAdmin } = require("../middlewares");
 const router = express.Router();
 const uploader = require("../helpers/multer");
 
@@ -11,7 +11,7 @@ const uploader = require("../helpers/multer");
 //   uploader.single("file"),
 //   userController.uploadFile
 // );
-router.put("/edit", isLoggedIn, isOwner, userController.userEdit);
+router.put("/edit", isLoggedIn, userController.userEdit);
 router.get("/profile", isLoggedIn, userController.userDetail);
 
 // manage user

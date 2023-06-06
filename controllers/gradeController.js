@@ -15,7 +15,8 @@ class gradeController {
         },
       });
 
-      if (!grade) throw { name: "NotFound" };
+      if (grade.length === 0) throw { name: "NotFound" };
+
       res.status(200).json(grade);
     } catch (err) {
       next(err);
@@ -45,27 +46,27 @@ class gradeController {
     }
   }
 
-  // delete user grade
-  // *admin
-  static async delete(req, res, next) {
-    try {
-      const { id } = req.params;
+  // // delete user grade
+  // // *admin
+  // static async delete(req, res, next) {
+  //   try {
+  //     const { id } = req.params;
 
-      const deleted = await Grade.destroy({
-        where: {
-          id: +id,
-        },
-      });
+  //     const deleted = await Grade.destroy({
+  //       where: {
+  //         id: +id,
+  //       },
+  //     });
 
-      if (deleted <= 0) throw { name: "NotFound" };
+  //     if (deleted <= 0) throw { name: "NotFound" };
 
-      res.status(200).json({
-        message: `Grade with id ${id} has been deleted`,
-      });
-    } catch (err) {
-      next(err);
-    }
-  }
+  //     res.status(200).json({
+  //       message: `Grade with id ${id} has been deleted`,
+  //     });
+  //   } catch (err) {
+  //     next(err);
+  //   }
+  // }
 
   // show grade detail, with exams, questions, answers
   // *user

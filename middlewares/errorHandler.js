@@ -2,7 +2,7 @@ const errorHandler = (err, req, res, next) => {
   console.log(err, "<<<<<< ERROR");
   console.log(err.name, "<<<<<< ERROR NAME");
 
-  let code = 500;
+  let code = 400;
   let msg = "Internal Server Error";
 
   //validasi sequelize
@@ -82,6 +82,7 @@ const errorHandler = (err, req, res, next) => {
   }
 
   if (err.name === "NothingUpdate") {
+    code = 400;
     msg = "Didn't change anything";
   }
 
@@ -139,15 +140,15 @@ const errorHandler = (err, req, res, next) => {
     msg = "Invalid email / token";
   }
 
-  if (err.name === "UploadFailed") {
-    code = 500;
-    msg = "Failed upload image";
-  }
+  // if (err.name === "UploadFailed") {
+  //   code = 500;
+  //   msg = "Failed upload image";
+  // }
 
-  if (err.name === "FileRequired") {
-    code = 400;
-    msg = "Image file empty";
-  }
+  // if (err.name === "FileRequired") {
+  //   code = 400;
+  //   msg = "Image file empty";
+  // }
 
   if (err.name === "SessionExist") {
     code = 400;

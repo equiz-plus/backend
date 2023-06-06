@@ -260,12 +260,13 @@ class examController {
   static async examDetail(req, res, next) {
     try {
       const { id } = req.params;
-      console.log(id, "ini exam id");
 
       const exams = await Exam.findOne({
         where: { id: +id },
       });
+
       if (!exams) throw { name: "NotFound" };
+
       res.status(200).json(exams);
     } catch (err) {
       next(err);

@@ -125,6 +125,10 @@ class questionController {
 
       let answersList = answersInput;
       answersList.forEach((answer) => {
+        if (!answer.answer) {
+          throw { name: "InvalidInput" };
+        }
+
         answer.QuestionId = newQuestion.id;
       });
 

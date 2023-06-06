@@ -6,7 +6,7 @@ class certificateController {
   // *admin
   static async certificateList(req, res, next) {
     try {
-      const { page, displayLength, sort, order, search } = req.query;
+      const { page, displayLength, order } = req.query;
 
       let whereCondition = {};
 
@@ -17,14 +17,8 @@ class certificateController {
       }
 
       // set sort
-      let sortBy = sort;
+      let sortBy = "id";
       let sortOrder = order;
-
-      if (!sortBy || sortBy !== "name") {
-        sortBy = "id";
-      } else {
-        sortBy = "name";
-      }
 
       if (!sortOrder || sortOrder !== "ASC") {
         sortOrder = "DESC";
@@ -112,6 +106,11 @@ class certificateController {
           },
         ],
       });
+
+      if (!certificate) {
+        throw { name: "NotFound" };
+      }
+
       res.status(200).json(certificate);
     } catch (err) {
       next(err);
