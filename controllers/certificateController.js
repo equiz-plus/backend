@@ -53,6 +53,7 @@ class certificateController {
 
       // ini final query
       const certificateData = await Certificate.findAndCountAll({
+        include: [{ model: User }, { model: Exam }],
         where: whereCondition,
         order: [autoSort],
         offset: finalOffset,

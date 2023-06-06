@@ -32,6 +32,20 @@ class userExamController {
         throw { name: "InExam" };
       }
 
+      // check if user is a premium
+      const user = await User.findOne({
+        include: {
+          model: Grade,
+        },
+        where: {
+          id: +id,
+        },
+      });
+
+      if (user.isPremium === false && user.Grade.length <= 10) {
+        throw { name: "NotPremium" };
+      }
+
       // check if exam exists
       const exam = await Exam.findByPk(+ExamId);
 
