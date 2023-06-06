@@ -87,7 +87,12 @@ class paymentController {
       const { order_id, transaction_status, transaction_id } = req.body;
       const splitPayment = order_id.split("-");
       const paymentId = splitPayment[1].substring(1);
-      const findTransaction = await Transaction.findByPk(+paymentId);
+      const findTransaction = await Transaction.findByPk(+paymentId, {
+        include: {
+          model: User,
+          attributes: ["premiumExpiry"],
+        },
+      });
 
       if (!findTransaction) {
         throw { name: "NotFound" };
@@ -139,11 +144,16 @@ class paymentController {
 
         console.log(totalDays, "INI TOTAL DAYS");
 
-        let now = new Date();
-        let expiredDate = now.setDate(now.getDate() + totalDays);
+        let currentExpiry = new Date(findTransaction.User.premiumExpiry);
+
+        console.log(currentExpiry, "INI CURRENT EXPIRY");
+
+        let expiredDate = currentExpiry.setDate(
+          currentExpiry.getDate() + totalDays
+        );
         expiredDate = new Date(expiredDate);
 
-        console.log(expiredDate, "INI EXPIRED DATE");
+        console.log(expiredDate, "INI NEW EXPIRED DATE");
 
         const updateBalance = await User.update(
           {
