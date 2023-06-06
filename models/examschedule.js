@@ -14,7 +14,19 @@ module.exports = (sequelize, DataTypes) => {
   }
   ExamSchedule.init(
     {
-      ExamId: DataTypes.INTEGER,
+      ExamId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "ExamId cannot be empty",
+          },
+          notEmpty: {
+            msg: "ExamId cannot be empty",
+          },
+        },
+      },
+
       startingDate: {
         type: DataTypes.DATE,
         allowNull: false,

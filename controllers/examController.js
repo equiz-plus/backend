@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { Exam, Session, Category, Grade } = require("../models");
+const { Exam, Session, Category, Grade, ExamSchedule } = require("../models");
 
 // list of exams
 // *admin
@@ -77,6 +77,10 @@ class examController {
         include: [
           {
             model: Category,
+          },
+          {
+            model: ExamSchedule,
+            require: false,
           },
         ],
         where: whereCondition,

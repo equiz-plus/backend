@@ -25,14 +25,21 @@ class scheduleController {
         },
       });
 
+      const start = new Date(startingDate);
+      const end = new Date(endDate);
+
       if (!findExam) {
         throw { name: "NotFound" };
       }
 
       const schedule = await ExamSchedule.create({
         ExamId,
-        startingDate,
-        endDate,
+        startingDate: start,
+        endDate: end,
+      });
+
+      res.status(200).json({
+        schedule,
       });
     } catch (err) {
       next(err);
@@ -41,6 +48,17 @@ class scheduleController {
 
   static async deleteSchedule(req, res, next) {
     try {
+      const { id } = req.params;
+
+      const deleteSchedule = await ExamSchedule.destroy({
+        where: {
+          id: +id,
+        },
+      });
+
+      if (deleteSchedule <= 0) {
+        throw { name: "NotFound" };
+      }
     } catch (err) {
       next(err);
     }
