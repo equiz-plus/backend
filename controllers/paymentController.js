@@ -133,11 +133,12 @@ class paymentController {
           }
         );
 
-        let totalDays = splitPayment[2];
+        let totalDays = Number(splitPayment[2]);
 
         console.log(totalDays, "INI TOTAL DAYS");
 
-        let expiredDate = new Date().getDay() + Number(totalDays);
+        let now = new Date();
+        let expiredDate = now.setDate(now.getDate() + totalDays);
         expiredDate = new Date(expiredDate);
 
         console.log(expiredDate, "INI EXPIRED DATE");
