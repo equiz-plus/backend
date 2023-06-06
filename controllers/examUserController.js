@@ -240,8 +240,6 @@ class userExamController {
               },
             });
 
-            console.log(organization, "INI ORGANIZATION");
-
             // does organization exist?
             if (organization) {
               if (organization.prefix) {
@@ -260,10 +258,6 @@ class userExamController {
               QRcode: QRcode,
             });
 
-            console.log(newCertificate, "INI NEW CERTIFICATE");
-
-            console.log(newCertificate.publishedDate, "INI PUBLISHED DATE");
-
             let certId = newCertificate.id.toString();
             let month = newCertificate.publishedDate
               .toISOString()
@@ -272,24 +266,14 @@ class userExamController {
               .toISOString()
               .substring(0, 4);
 
-            console.log(certId, "INI CERT ID");
-
-            if (certId.length === 1) {
-              certId = `000${certId}`;
-            } else if (certId.length === 2) {
-              certId = `00${certId}`;
-            } else if (certId.length === 3) {
-              certId = `0${certId.id}`;
+            let certNumber = "";
+            for (let i = 1; i <= 4 - certId.length; i++) {
+              certNumber += "0";
             }
+            certNumber += certId;
 
-            console.log(certId, "INI CERTIFICATE ID");
-
-            const certNo = `CERT/${certId}/${organizationPrefix}/${month}/${year}`;
+            const certNo = `CERT/${certNumber}/${organizationPrefix}/${month}/${year}`;
             const slug = certNo.split("/").join("-");
-
-            console.log(certNo, "INI CERT NO");
-            console.log(slug, "INI CERT SLUG");
-            console.log(process.env.BASE_URL, "INI BASE URL");
 
             const updateNo = await Certificate.update(
               {
@@ -303,10 +287,6 @@ class userExamController {
                 },
               }
             );
-
-            if (updateNo <= 0) {
-              throw { name: "NothingUpdate" };
-            }
             // change message to passed
             status = "Passed";
           }
@@ -389,8 +369,6 @@ class userExamController {
               },
             });
 
-            console.log(organization, "INI ORGANIZATION");
-
             if (organization) {
               if (organization.prefix) {
                 organizationPrefix = organization.prefix;
@@ -409,34 +387,20 @@ class userExamController {
             QRcode: QRcode,
           });
 
-          console.log(newCertificate, "INI NEW CERTIFICATE");
-
-          console.log(newCertificate.publishedDate, "INI PUBLISHED DATE");
-
           let certId = newCertificate.id.toString();
           let month = newCertificate.publishedDate
             .toISOString()
             .substring(5, 7);
           let year = newCertificate.publishedDate.toISOString().substring(0, 4);
 
-          console.log(certId, "INI CERT ID");
-
-          if (certId.length === 1) {
-            certId = `000${certId}`;
-          } else if (certId.length === 2) {
-            certId = `00${certId}`;
-          } else if (certId.length === 3) {
-            certId = `0${certId.id}`;
+          let certNumber = "";
+          for (let i = 1; i <= 4 - certId.length; i++) {
+            certNumber += "0";
           }
+          certNumber += certId;
 
-          console.log(certId, "INI CERTIFICATE ID");
-
-          const certNo = `CERT/${certId}/${organizationPrefix}/${month}/${year}`;
+          const certNo = `CERT/${certNumber}/${organizationPrefix}/${month}/${year}`;
           const slug = certNo.split("/").join("-");
-
-          console.log(certNo, "INI CERT NO");
-          console.log(slug, "INI CERT SLUG");
-          console.log(process.env.BASE_URL, "INI BASE URL");
 
           const updateNo = await Certificate.update(
             {

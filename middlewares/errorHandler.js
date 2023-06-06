@@ -46,11 +46,6 @@ const errorHandler = (err, req, res, next) => {
     msg = "Not Found";
   }
 
-  if (err.name === "AlreadySubscribe") {
-    code = 400;
-    msg = "You already subscribe";
-  }
-
   if (err.name === "Unauthorized") {
     code = 401;
     msg = "Invalid email / password";
@@ -86,10 +81,6 @@ const errorHandler = (err, req, res, next) => {
     msg = "Didn't change anything";
   }
 
-  if (err.name === "InvalidPin") {
-    msg = "Invalid PIN";
-  }
-
   if (err.name === "InvalidQuestions") {
     code = 400;
     msg = "Questions minimum 5 and maximum 100";
@@ -115,11 +106,6 @@ const errorHandler = (err, req, res, next) => {
     msg = "You have done this test";
   }
 
-  if (err.name === "PremiumExam") {
-    code = 403;
-    msg = "Only premium member can take this exam";
-  }
-
   if (err.name === "isNotComfirm") {
     code = 401;
     msg = "Pending Account. Please Verify Your Email!";
@@ -128,11 +114,6 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === "TokenRequired") {
     code = 400;
     msg = "Input token confirmation first";
-  }
-
-  if (err.name === "InvalidToken") {
-    code = 400;
-    msg = "Invalid token";
   }
 
   if (err.name === "InvalidVerificationInfo") {

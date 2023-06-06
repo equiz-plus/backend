@@ -28,19 +28,13 @@ class certificateController {
 
       let autoSort = [`${sortBy}`, `${sortOrder}`];
 
-      console.log(autoSort, "INI SORTINGAN");
-
       // check if page number could be out of range
       const certificateCount = await Certificate.count({
         where: whereCondition,
       });
 
-      console.log(certificateCount, "INI TOTAL CERTIFICATE YANG DITEMUKAN");
-      console.log(page, "INI PAGE SEBELUM CORRECTION");
-
       // page number correction
       const totalPages = Math.ceil(certificateCount / pagination);
-      console.log(totalPages, "INI TOTAL PAGES");
 
       let autoPage = 1;
       if (page > totalPages || totalPages === 0) {
@@ -50,8 +44,6 @@ class certificateController {
       } else {
         autoPage = +page;
       }
-
-      console.log(autoPage, "INI FINAL AUTOPAGE");
 
       // offset correction
       let finalOffset = (+autoPage - 1) * pagination;

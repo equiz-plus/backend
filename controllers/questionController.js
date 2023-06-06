@@ -28,8 +28,6 @@ class questionController {
 
       let autoSort = [`${sortBy}`, `${sortOrder}`];
 
-      console.log(autoSort, "INI SORTINGAN");
-
       // check if CategoryId input is correct
       if (!CategoryId || isNaN(CategoryId)) {
         whereCondition = {};
@@ -44,19 +42,13 @@ class questionController {
         };
       }
 
-      console.log(whereCondition, "INI WHERE FINAL");
-
       // check if page number could be out of range
       const questionCount = await Question.count({
         where: whereCondition,
       });
 
-      console.log(questionCount, "INI TOTAL QUESTIONS YANG DITEMUKAN");
-      console.log(page, "INI PAGE SEBELUM CORRECTION");
-
       // page number correction
       const totalPages = Math.ceil(questionCount / pagination);
-      console.log(totalPages, "INI TOTAL PAGES");
 
       let autoPage = 1;
       if (page > totalPages || totalPages === 0) {
@@ -66,8 +58,6 @@ class questionController {
       } else {
         autoPage = +page;
       }
-
-      console.log(autoPage, "INI FINAL AUTOPAGE");
 
       // offset correction
       let finalOffset = (+autoPage - 1) * pagination;
@@ -132,8 +122,6 @@ class questionController {
         answer.QuestionId = newQuestion.id;
       });
 
-      console.log(answersList, "INI FINAL ANSWERS LIST");
-
       await Answer.bulkCreate(answersInput, {
         transaction: generateQuestionTransaction,
       });
@@ -194,94 +182,84 @@ class questionController {
 
   // shows answer list
   // *admin
-  static async answerList(req, res, next) {
-    try {
-      const { page, QuestionId, displayLength, order, search } = req.query;
+  // static async answerList(req, res, next) {
+  //   try {
+  //     const { page, QuestionId, displayLength, order, search } = req.query;
 
-      let whereCondition = {};
+  //     let whereCondition = {};
 
-      // set query length
-      let pagination = +displayLength;
-      if (!displayLength || isNaN(displayLength || displayLength < 1)) {
-        pagination = 10;
-      }
+  //     // set query length
+  //     let pagination = +displayLength;
+  //     if (!displayLength || isNaN(displayLength || displayLength < 1)) {
+  //       pagination = 10;
+  //     }
 
-      // set sort
-      let sortBy = "id";
-      let sortOrder = order;
+  //     // set sort
+  //     let sortBy = "id";
+  //     let sortOrder = order;
 
-      if (!sortOrder || sortOrder !== "ASC") {
-        sortOrder = "DESC";
-      } else {
-        sortOrder = "ASC";
-      }
+  //     if (!sortOrder || sortOrder !== "ASC") {
+  //       sortOrder = "DESC";
+  //     } else {
+  //       sortOrder = "ASC";
+  //     }
 
-      let autoSort = [`${sortBy}`, `${sortOrder}`];
+  //     let autoSort = [`${sortBy}`, `${sortOrder}`];
 
-      console.log(autoSort, "INI SORTINGAN");
+  //     // check if QuestionId input is correct
+  //     if (!QuestionId || isNaN(QuestionId)) {
+  //       whereCondition = {};
+  //     } else {
+  //       whereCondition.QuestionId = +QuestionId;
+  //     }
 
-      // check if QuestionId input is correct
-      if (!QuestionId || isNaN(QuestionId)) {
-        whereCondition = {};
-      } else {
-        whereCondition.QuestionId = +QuestionId;
-      }
+  //     // set search
+  //     if (search) {
+  //       whereCondition.answer = {
+  //         [Op.iLike]: `%${search}%`,
+  //       };
+  //     }
 
-      // set search
-      if (search) {
-        whereCondition.answer = {
-          [Op.iLike]: `%${search}%`,
-        };
-      }
+  //     // check if page number could be out of range
+  //     const answersCount = await Answer.count({
+  //       where: whereCondition,
+  //     });
 
-      console.log(whereCondition, "INI WHERE FINAL");
+  //     // page number correction
+  //     const totalPages = Math.ceil(answersCount / pagination);
 
-      // check if page number could be out of range
-      const answersCount = await Answer.count({
-        where: whereCondition,
-      });
+  //     let autoPage = 1;
+  //     if (page > totalPages || totalPages === 0) {
+  //       autoPage = totalPages;
+  //     } else if (page < 1 || isNaN(page)) {
+  //       autoPage = 1;
+  //     } else {
+  //       autoPage = +page;
+  //     }
 
-      console.log(answersCount, "INI TOTAL ANSWERS YANG DITEMUKAN");
-      console.log(page, "INI PAGE SEBELUM CORRECTION");
+  //     // offset correction
+  //     let finalOffset = (+autoPage - 1) * pagination;
+  //     if (finalOffset < 0) {
+  //       finalOffset = 0;
+  //     }
 
-      // page number correction
-      const totalPages = Math.ceil(answersCount / pagination);
-      console.log(totalPages, "INI TOTAL PAGES");
+  //     // ini final query
+  //     const answersData = await Answer.findAndCountAll({
+  //       where: whereCondition,
+  //       order: [autoSort],
+  //       offset: finalOffset,
+  //       limit: pagination,
+  //     });
 
-      let autoPage = 1;
-      if (page > totalPages || totalPages === 0) {
-        autoPage = totalPages;
-      } else if (page < 1 || isNaN(page)) {
-        autoPage = 1;
-      } else {
-        autoPage = +page;
-      }
-
-      console.log(autoPage, "INI FINAL AUTOPAGE");
-
-      // offset correction
-      let finalOffset = (+autoPage - 1) * pagination;
-      if (finalOffset < 0) {
-        finalOffset = 0;
-      }
-
-      // ini final query
-      const answersData = await Answer.findAndCountAll({
-        where: whereCondition,
-        order: [autoSort],
-        offset: finalOffset,
-        limit: pagination,
-      });
-
-      res.status(200).json({
-        currentPage: autoPage,
-        totalPages: totalPages,
-        totalAnswers: answersData.count,
-        answers: answersData.rows,
-      });
-    } catch (err) {
-      next(err);
-    }
-  }
+  //     res.status(200).json({
+  //       currentPage: autoPage,
+  //       totalPages: totalPages,
+  //       totalAnswers: answersData.count,
+  //       answers: answersData.rows,
+  //     });
+  //   } catch (err) {
+  //     next(err);
+  //   }
+  // }
 }
 module.exports = questionController;

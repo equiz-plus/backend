@@ -41,19 +41,13 @@ class organizationController {
 
       let autoSort = [`${sortBy}`, `${sortOrder}`];
 
-      console.log(autoSort, "INI SORTINGAN");
-
       // check if page number could be out of range
       const organizationCount = await Organization.count({
         where: whereCondition,
       });
 
-      console.log(organizationCount, "INI TOTAL ORGANIZATION YANG DITEMUKAN");
-      console.log(page, "INI PAGE SEBELUM CORRECTION");
-
       // page number correction
       const totalPages = Math.ceil(organizationCount / pagination);
-      console.log(totalPages, "INI TOTAL PAGES");
 
       let autoPage = 1;
       if (page > totalPages || totalPages === 0) {
@@ -63,8 +57,6 @@ class organizationController {
       } else {
         autoPage = +page;
       }
-
-      console.log(autoPage, "INI FINAL AUTOPAGE");
 
       // offset correction
       let finalOffset = (+autoPage - 1) * pagination;

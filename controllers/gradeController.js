@@ -114,21 +114,13 @@ class gradeController {
 
       let autoSort = [`${sortBy}`, `${sortOrder}`];
 
-      console.log(autoSort, "INI SORTINGAN");
-
-      console.log(whereCondition, "INI WHERE FINAL");
-
       // check if page number could be out of range
       const answerCount = await UserAnswer.count({
         where: whereCondition,
       });
 
-      console.log(answerCount, "INI TOTAL ANSWER YANG DITEMUKAN");
-      console.log(page, "INI PAGE SEBELUM CORRECTION");
-
       // page number correction
       const totalPages = Math.ceil(answerCount / pagination);
-      console.log(totalPages, "INI TOTAL PAGES");
 
       let autoPage = 1;
       if (page > totalPages || totalPages === 0) {
@@ -138,8 +130,6 @@ class gradeController {
       } else {
         autoPage = +page;
       }
-
-      console.log(autoPage, "INI FINAL AUTOPAGE");
 
       // offset correction
       let finalOffset = (+autoPage - 1) * pagination;

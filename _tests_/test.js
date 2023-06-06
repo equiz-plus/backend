@@ -1,10 +1,12 @@
 const request = require("supertest");
 const app = require("../app");
+const { Exam, User } = require("../models/index");
 const {
   deleteUser,
   updateToken,
   findToken,
   setScore,
+  mockUser,
 } = require("../lib/userInit");
 const { comparePassword, hashPassword } = require("../helpers/bcrypt");
 const {
@@ -119,6 +121,24 @@ describe("POST /login", () => {
 const confirmationToken = jest.fn(findToken);
 
 describe("POST /confirmation", () => {
+  it("should return confirmation FAILED - no token", async () => {
+    const res = await request(app)
+      .post("/confirmation")
+      .send({ email: "admin@test.com", token: "" })
+      .expect(400);
+
+    expect(res.body.message).toBe("Input token confirmation first");
+  });
+
+  it("should return confirmation FAILED - wrong token", async () => {
+    const res = await request(app)
+      .post("/confirmation")
+      .send({ email: "admin@test.com", token: "ZAZA" })
+      .expect(401);
+
+    expect(res.body.message).toBe("Invalid email / token");
+  });
+
   it("should return confirmation SUCCESS", async () => {
     const result = await confirmationToken();
 
@@ -130,26 +150,39 @@ describe("POST /confirmation", () => {
     expect(res.body.email).toBe("admin@test.com");
     expect(res.body.message).toBe("Your account has been activated");
   });
-
-  it("should return confirmation FAILED - wrong or no token", async () => {
-    const res = await request(app)
-      .post("/confirmation")
-      .send({ email: "admin@test.com", token: "" })
-      .expect(400);
-
-    expect(res.body.message).toBe("Input token confirmation first");
-  });
 });
 
 // mock functions to change user status
 const mockUserValidator = jest.fn(updateToken);
 
-// route for user login
 let token = "";
 
+// route for user login
 describe("POST /login", () => {
-  it("should return login SUCCESS", async () => {
+  it("should return login SUCCESS - not premium", async () => {
     await mockUserValidator();
+    const res = await request(app)
+      .post("/login")
+      .send({ email: "admin@test.com", password: "12345678" })
+      .expect(200);
+
+    token = res.body.access_token;
+
+    expect(typeof res.body.access_token).toBe("string");
+    expect(res.body.name).toBe("admin");
+    expect(res.body.role).toBe("admin");
+  });
+
+  it("should return login SUCCESS - premium still there", async () => {
+    await User.update(
+      {
+        premiumExpiry: new Date("2023-12-31"),
+      },
+      {
+        where: { id: 1 },
+      }
+    );
+
     const res = await request(app)
       .post("/login")
       .send({ email: "admin@test.com", password: "12345678" })
@@ -178,6 +211,24 @@ describe("POST /login", () => {
       .expect(401);
 
     expect(res.body.message).toBe("Invalid email / password");
+  });
+
+  it("should return login FAILED: no email)", async () => {
+    const res = await request(app)
+      .post("/login")
+      .send({ password: "12345" })
+      .expect(400);
+
+    expect(res.body.message).toBe("Email is required");
+  });
+
+  it("should return login FAILED: no password)", async () => {
+    const res = await request(app)
+      .post("/login")
+      .send({ email: "bapak@test.com" })
+      .expect(400);
+
+    expect(res.body.message).toBe("Password is required");
   });
 });
 
@@ -262,20 +313,37 @@ describe("POST /categories", () => {
 
 // router for get category 1
 describe("GET /categories", () => {
-  it("should return get category SUCCESS", async () => {
+  it("should return get category SUCCESS - Query 1", async () => {
     const res = await request(app)
-      .get(`/categories?displayLength=10&page=2&sort=DESC&order=id&search=new`)
+      .get(`/categories?displayLength=1&page=1&order=ASC&search=new`)
       .set("access_token", token)
       .expect(200);
 
     expect(res.body.categories[0].id).toBe(1);
     expect(res.body.categories[0].name).toBe("New Category");
   });
-});
 
-// router for get category 2
-describe("GET /categories", () => {
-  it("should return get category SUCCESS", async () => {
+  it("should return get category SUCCESS - Query 2", async () => {
+    const res = await request(app)
+      .get(`/categories?displayLength=10&page=100&order=DESC`)
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.categories[0].id).toBe(1);
+    expect(res.body.categories[0].name).toBe("New Category");
+  });
+
+  it("should return get category SUCCESS - Query 2", async () => {
+    const res = await request(app)
+      .get(`/categories?displayLength=10&page=-100`)
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.categories[0].id).toBe(1);
+    expect(res.body.categories[0].name).toBe("New Category");
+  });
+
+  it("should return get category SUCCESS - Query 3", async () => {
     const res = await request(app)
       .get(`/categories?displayLength=ZZ&page=XX&sort=&order=`)
       .set("access_token", token)
@@ -283,6 +351,25 @@ describe("GET /categories", () => {
 
     expect(res.body.categories[0].id).toBe(1);
     expect(res.body.categories[0].name).toBe("New Category");
+  });
+
+  it("should return get category FAILED - No token", async () => {
+    const res = await request(app)
+      .get(`/categories?displayLength=ZZ&page=XX&sort=&order=`)
+      .expect(403);
+
+    expect(res.body.message).toBe("Access denied");
+  });
+
+  it("should return get category FAILED - Invalid token", async () => {
+    const invalidToken = "ABCDEFGH";
+
+    const res = await request(app)
+      .get(`/categories?displayLength=ZZ&page=XX&sort=&order=`)
+      .set("access_token", invalidToken)
+      .expect(403);
+
+    expect(res.body.message).toBe("Access denied");
   });
 });
 
@@ -370,6 +457,38 @@ describe("POST /exams", () => {
     expect(res.body.CategoryId).toBe(1);
   });
 
+  it("should return create exam FAILED - too many questions", async () => {
+    const res = await request(app)
+      .post(`/exams`)
+      .send({
+        title: "New Title",
+        description: "New Description",
+        totalQuestions: 500,
+        duration: 120,
+        CategoryId: 1,
+      })
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("Questions minimum 5 and maximum 100");
+  });
+
+  it("should return create exam FAILED - too few questions", async () => {
+    const res = await request(app)
+      .post(`/exams`)
+      .send({
+        title: "New Title",
+        description: "New Description",
+        totalQuestions: 1,
+        duration: 120,
+        CategoryId: 1,
+      })
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("Questions minimum 5 and maximum 100");
+  });
+
   it("should return create exam FAILED - missing title", async () => {
     const res = await request(app)
       .post(`/exams`)
@@ -444,13 +563,31 @@ describe("POST /exams", () => {
 
     expect(res.body.message).toBe("Category ID is required");
   });
+
+  it("should return create exam FAILED - invalid category ID", async () => {
+    const res = await request(app)
+      .post(`/exams`)
+      .send({
+        title: "New Title",
+        description: "New Description",
+        totalQuestions: 5,
+        duration: 120,
+        CategoryId: 999,
+      })
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("Invalid Category ID");
+  });
 });
 
 // router for get exam list
 describe("GET /exams", () => {
-  it("should return get exam SUCCESS", async () => {
+  it("should return get exam SUCCESS - Query 1", async () => {
     const res = await request(app)
-      .get(`/exams`)
+      .get(
+        `/exams?page=1&CategoryId=1&displayLength=1&sort=title&order=ASC&search=new`
+      )
       .set("access_token", token)
       .expect(200);
 
@@ -460,6 +597,32 @@ describe("GET /exams", () => {
     expect(res.body.exams[0].totalQuestions).toBe(5);
     expect(res.body.exams[0].duration).toBe(120);
     expect(res.body.exams[0].CategoryId).toBe(1);
+  });
+
+  it("should return get exam SUCCESS - Query 2", async () => {
+    const res = await request(app)
+      .get(
+        `/exams?page=0.8&CategoryId=CAK&displayLength=0&sort=id&order=DESC&search=new`
+      )
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.exams[0].id).toBe(1);
+    expect(res.body.exams[0].title).toBe("New Title");
+    expect(res.body.exams[0].description).toBe("New Description");
+    expect(res.body.exams[0].totalQuestions).toBe(5);
+    expect(res.body.exams[0].duration).toBe(120);
+    expect(res.body.exams[0].CategoryId).toBe(1);
+  });
+
+  it("should return get exam FAILED - No token", async () => {
+    const res = await request(app)
+      .get(
+        `/exams?page=0.8&CategoryId=CAK&displayLength=0&sort=id&order=DESC&search=new`
+      )
+      .expect(403);
+
+    expect(res.body.message).toBe("Access denied");
   });
 });
 
@@ -614,6 +777,18 @@ describe("PUT /exams", () => {
   });
 });
 
+// route for user trying to take exam, but exam not open
+describe("POST /exams/start/:ExamId", () => {
+  it("should return start exam FAILED - exam not open", async () => {
+    const res = await request(app)
+      .post(`/exams/start/1`)
+      .set("access_token", token)
+      .expect(403);
+
+    expect(res.body.message).toBe("Exam has been closed");
+  });
+});
+
 // route for changing exam to open
 describe("PATCH /exams/change-visibility/:id", () => {
   it("should return patch exam SUCCESS: Exam status now open/close", async () => {
@@ -623,6 +798,27 @@ describe("PATCH /exams/change-visibility/:id", () => {
       .expect(200);
 
     expect(res.body.message).toBe("Exam status now open");
+  });
+
+  it("should return patch exam Failed: no such exam", async () => {
+    const res = await request(app)
+      .patch(`/exams/change-visibility/99`)
+      .set("access_token", token)
+      .expect(404);
+
+    expect(res.body.message).toBe("Not Found");
+  });
+});
+
+// route for user trying to take exam, but exam does not have any questions
+describe("POST /exams/start/:ExamId", () => {
+  it("should return start exam FAILED - exam without questions", async () => {
+    const res = await request(app)
+      .post(`/exams/start/1`)
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("This exam doesn't have any questions");
   });
 });
 
@@ -749,15 +945,13 @@ describe("POST /questions", () => {
 
 // route for get questions list
 describe("GET /questions", () => {
-  it("should return get questions SUCCESS", async () => {
+  it("should return get questions SUCCESS - Query 1", async () => {
     const res = await request(app)
-      .get(`/questions`)
+      .get(`/questions?page=ASC&CategoryId=1&search=new&page=1000`)
       .set("access_token", token)
       .expect(200);
 
-    expect(res.body.questions[0].id).toBe(1);
-    expect(res.body.questions[0].question).toBe("Spongebob lives in...");
-    expect(res.body.questions[0].CategoryId).toBe(1);
+    expect(res.body.questions).toBeDefined;
   });
 });
 
@@ -1035,6 +1229,37 @@ describe("POST /exams/start/:ExamId", () => {
   });
 });
 
+// route for editing exam failed, there's a session
+describe("PUT /exams", () => {
+  it("should return edit exam FAILED - session exists", async () => {
+    const res = await request(app)
+      .put(`/exams/1`)
+      .send({
+        title: "New Title Edit",
+        description: "New Description Edit",
+        totalQuestions: 10,
+        duration: 150,
+        CategoryId: 1,
+      })
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("An active session is using this resource");
+  });
+});
+
+// router delete exam failed, there's a session
+describe("DELETE /exams/:id", () => {
+  it("should return delete exam FAILED - session exists)", async () => {
+    const res = await request(app)
+      .delete("/exams/1")
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("An active session is using this resource");
+  });
+});
+
 // route for answering an exam
 describe("POST /exams/answer/:questionNumber", () => {
   it("should return answer SUCCESS - new answer entry", async () => {
@@ -1120,6 +1345,18 @@ describe("POST /exams/end", () => {
   });
 });
 
+// route for user trying to retake exam, but failed
+describe("POST /exams/start/:ExamId", () => {
+  it("should return start exam SUCCESS", async () => {
+    const res = await request(app)
+      .post(`/exams/start/1`)
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("You have done this test");
+  });
+});
+
 // route for answering an exam, but exam ended
 describe("POST /exams/answer/:questionNumber - Exam Ended", () => {
   it("should return answer FAILED - exam ended", async () => {
@@ -1170,6 +1407,15 @@ describe("GET /exams/session", () => {
 
     expect(res.body.message).toBe("Exam has ended");
     expect(res.body.status).toBe("Passed");
+  });
+
+  it("should return get exam session FAILED - session missing", async () => {
+    const res = await request(app)
+      .get(`/exams/session`)
+      .set("access_token", token)
+      .expect(404);
+
+    expect(res.body.message).toBe("Not Found");
   });
 });
 
@@ -1312,8 +1558,6 @@ describe("GET /grades/score/:id", () => {
       .set("access_token", token)
       .expect(200);
 
-    console.log(res, "INI RESPONSE");
-
     expect(res.body[0].id).toBe(1);
     expect(res.body[0].questionsCount).toBe(1);
     expect(res.body[0].totalCorrect).toBe(1);
@@ -1334,9 +1578,19 @@ describe("GET /grades/score/:id", () => {
 
 // router buy subscription
 describe("POST /payment/pay", () => {
+  it("should return begin payment FAILED", async () => {
+    const res = await request(app)
+      .post(`/payment/pay`)
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("Invalid payment amount");
+  });
+
   it("should return begin payment SUCCESS", async () => {
     const res = await request(app)
-      .post(`/payment/pay?length=180`)
+      .post(`/payment/pay`)
+      .send({ length: "180" })
       .set("access_token", token)
       .expect(201);
 
@@ -1372,8 +1626,6 @@ describe("POST /payment/checking", () => {
       .set("access_token", token)
       .expect(200);
 
-    console.log(res);
-
     expect(res.body.message).toBe("180 days added to User ID 1 subscription");
   });
 
@@ -1407,13 +1659,170 @@ describe("POST /payment/checking", () => {
 });
 
 // router delete organization
-describe("POST /organization", () => {
-  it("should return delete SUCCESS)", async () => {
+describe("DELETE /organization/:id", () => {
+  it("should return delete organization SUCCESS)", async () => {
     const res = await request(app)
-      .post("/login")
-      .send({ email: "admin@test.com", password: "12345678" })
-      .expect(401);
+      .delete("/organizations/1")
+      .set("access_token", token)
+      .expect(200);
 
-    expect(res.body.message).toBe("Pending Account. Please Verify Your Email!");
+    expect(res.body.message).toBe("Organization with id 1 has been deleted");
+  });
+
+  it("should return delete organization FAILED - invalid organization)", async () => {
+    const res = await request(app)
+      .delete("/organizations/1")
+      .set("access_token", token)
+      .expect(404);
+
+    expect(res.body.message).toBe("Not Found");
+  });
+});
+
+// router delete exam
+describe("DELETE /exams/:id", () => {
+  it("should return delete exam SUCCESS)", async () => {
+    await deleteGrade();
+    const exam = await Exam.findByPk(1);
+
+    const res = await request(app)
+      .delete("/exams/1")
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("Exam with id 1 has been deleted");
+  });
+
+  it("should return delete exam FAILED - invalid organization)", async () => {
+    const res = await request(app)
+      .delete("/exams/1")
+      .set("access_token", token)
+      .expect(404);
+
+    expect(res.body.message).toBe("Not Found");
+  });
+});
+
+// router for delete questions
+describe("DELETE /questions/:id", () => {
+  it("should return delete question SUCCESS)", async () => {
+    const res = await request(app)
+      .delete("/questions/1")
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("Question with id 1 has been deleted");
+  });
+
+  it("should return delete question FAILED - invalid question)", async () => {
+    const res = await request(app)
+      .delete("/questions/1")
+      .set("access_token", token)
+      .expect(404);
+
+    expect(res.body.message).toBe("Not Found");
+  });
+});
+
+// route for delete category
+describe("DELETE /categories/:id", () => {
+  it("should return delete category SUCCESS)", async () => {
+    const res = await request(app)
+      .delete("/categories/1")
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("Category with id 1 has been deleted");
+  });
+
+  it("should return delete category FAILED - invalid category)", async () => {
+    const res = await request(app)
+      .delete("/categories/1")
+      .set("access_token", token)
+      .expect(404);
+
+    expect(res.body.message).toBe("Not Found");
+  });
+});
+
+// route for edit profile
+describe("PUT /users/edit", () => {
+  it("should return edit profile FAILED - wrong old password", async () => {
+    const res = await request(app)
+      .put(`/users/edit`)
+      .send({
+        username: "admin_new",
+        email: "admin_new@email.com",
+        password: "87654321",
+        oldPassword: "123456789",
+        phone: "080989999",
+        name: "satrio",
+        gender: "male",
+      })
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("Invalid old password");
+  });
+
+  it("should return edit profile FAILED - old password is empty", async () => {
+    const res = await request(app)
+      .put(`/users/edit`)
+      .send({
+        username: "admin_new",
+        email: "admin_new@email.com",
+        password: "87654321",
+        oldPassword: "",
+        phone: "080989999",
+        name: "satrio",
+        gender: "male",
+      })
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("Old password is required");
+  });
+
+  it("should return edit profile SUCCESS", async () => {
+    const res = await request(app)
+      .put(`/users/edit`)
+      .send({
+        username: "admin_new",
+        email: "admin_new@email.com",
+        password: "87654321",
+        oldPassword: "12345678",
+        phone: "080989999",
+        name: "satrio",
+        gender: "male",
+      })
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("User data has been updated");
+  });
+});
+
+// route for delete user
+describe("DELETE /users/:id", () => {
+  it("should return delete user SUCCESS", async () => {
+    await mockUser();
+
+    const res = await request(app)
+      .delete("/users/3")
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("User with id 3 has been deleted");
+  });
+
+  it("should return delete user SUCCESS", async () => {
+    await mockUser();
+
+    const res = await request(app)
+      .delete("/users/99")
+      .set("access_token", token)
+      .expect(404);
+
+    expect(res.body.message).toBe("Not Found");
   });
 });

@@ -33,19 +33,13 @@ class categoryController {
 
       let autoSort = [`${sortBy}`, `${sortOrder}`];
 
-      console.log(autoSort, "INI SORTINGAN");
-
       // check if page number could be out of range
       const categoriesCount = await Category.count({
         where: whereCondition,
       });
 
-      console.log(categoriesCount, "INI TOTAL QUESTIONS YANG DITEMUKAN");
-      console.log(page, "INI PAGE SEBELUM CORRECTION");
-
       // page number correction
       const totalPages = Math.ceil(categoriesCount / pagination);
-      console.log(totalPages, "INI TOTAL PAGES");
 
       let autoPage = 1;
       if (page > totalPages || totalPages === 0) {
@@ -55,8 +49,6 @@ class categoryController {
       } else {
         autoPage = +page;
       }
-
-      console.log(autoPage, "INI FINAL AUTOPAGE");
 
       // offset correction
       let finalOffset = (+autoPage - 1) * pagination;
