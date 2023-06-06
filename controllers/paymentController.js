@@ -25,7 +25,7 @@ class paymentController {
         product = 180;
       } else if (length === "365") {
         amount = 2000000;
-        product = 360;
+        product = 365;
       } else {
         throw { name: "InvalidAmount" };
       }
@@ -177,6 +177,10 @@ class paymentController {
 
         res.status(200).json({
           message: `Transaction has been cancelled`,
+        });
+      } else if (transaction_status === "pending") {
+        res.status(200).json({
+          message: `Transaction has been initiated`,
         });
       }
     } catch (err) {
