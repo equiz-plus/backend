@@ -25,8 +25,15 @@ class scheduleController {
         },
       });
 
+      const now = new Date();
       const start = new Date(startingDate);
       const end = new Date(endDate);
+
+      if (start > end) {
+        throw { name: "InvalidDate" };
+      } else if (start < now) {
+        throw { name: "InvalidDate" };
+      }
 
       if (!findExam) {
         throw { name: "NotFound" };
@@ -38,7 +45,7 @@ class scheduleController {
         endDate: end,
       });
 
-      res.status(200).json({
+      res.status(201).json({
         schedule,
       });
     } catch (err) {
@@ -64,9 +71,61 @@ class scheduleController {
     }
   }
 
-  // CRUD, INCLUDE EXAM LIST
-  // IF END > START, ERROR EDIT
-  // IF START < NOW, ERROR EDIT
+  static async editSchedule(req, res, next) {
+    try {
+      const { ExamId, startingDate, endDate } = req.body;
+      const { id } = req.params;
+
+      const findExam = await Exam.findOne({
+        where: {
+          id: ExamId,
+        },
+      });
+
+      const now = new Date();
+      const start = new Date(startingDate);
+      const end = new Date(endDate);
+
+      if (start > end) {
+        throw { name: "InvalidDate" };
+      } else if (start < now) {
+        throw { name: "InvalidDate" };
+      }
+
+      if (!findExam) {
+        throw { name: "NotFound" };
+      }
+
+      const schedule = await ExamSchedule.update(
+        {
+          ExamId,
+          startingDate: start,
+          endDate: end,
+        },
+        {
+          where: {
+            id: +id,
+          },
+        }
+      );
+
+      res.status(200).json({
+        message: `Schedule for Exam ID ${ExamId} updated`,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async getSchedule(req, res, next) {
+    try {
+      const schedule = ExamSchedule.findAll();
+
+      res.status(200).json(schedule);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 module.exports = scheduleController;

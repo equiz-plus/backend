@@ -119,6 +119,11 @@ const errorHandler = (err, req, res, next) => {
   //   msg = "Image file empty";
   // }
 
+  if (err.name === "InvalidDate") {
+    code = 400;
+    msg = "Start date must be smaller than end date";
+  }
+
   if (err.name === "SessionExist") {
     code = 400;
     msg = "An active session is using this resource";

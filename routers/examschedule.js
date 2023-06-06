@@ -6,6 +6,8 @@ const router = express.Router();
 router.use(isLoggedIn);
 
 router.post("/", isAdmin, scheduleController.createSchedule);
-router.delete("/", isAdmin, scheduleController.deleteSchedule);
+router.get("/", scheduleController.getSchedule);
+router.put("/:id", isAdmin, scheduleController.editSchedule);
+router.delete("/:id", isAdmin, scheduleController.deleteSchedule);
 
 module.exports = router;
