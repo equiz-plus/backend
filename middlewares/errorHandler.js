@@ -156,6 +156,11 @@ const errorHandler = (err, req, res, next) => {
     msg = err.ApiResponse.error_messages[0];
   }
 
+  if (err.name === "NotPremium") {
+    code = 403;
+    msg = "You reached the exam limit for free User";
+  }
+
   res.status(code).json({
     message: msg,
   });

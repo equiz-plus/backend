@@ -11,6 +11,7 @@ const {
   Category,
   Certificate,
   Organization,
+  User,
 } = require("../models");
 
 class userExamController {
@@ -42,7 +43,7 @@ class userExamController {
         },
       });
 
-      if (user.isPremium === false && user.Grade.length <= 10) {
+      if (user.isPremium === false && user.Grades.length <= 10) {
         throw { name: "NotPremium" };
       }
 
