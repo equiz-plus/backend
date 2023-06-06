@@ -125,6 +125,7 @@ class authController {
         name: user.name,
         avatar: user.avatar,
         email: user.email,
+        id: user.id,
       });
     } catch (err) {
       next(err);
