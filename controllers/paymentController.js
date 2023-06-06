@@ -164,6 +164,7 @@ class paymentController {
         const updateBalance = await User.update(
           {
             premiumExpiry: expiredDate,
+            isPremium: true,
           },
           {
             where: {
