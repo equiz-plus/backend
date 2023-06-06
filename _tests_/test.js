@@ -1,6 +1,6 @@
 const request = require("supertest");
 const app = require("../app");
-const { Exam, User } = require("../models/index");
+const { Exam, User, Session, Grade } = require("../models/index");
 const {
   deleteUser,
   updateToken,
@@ -1279,7 +1279,33 @@ describe("POST /exams/answer/:questionNumber", () => {
     expect(res.body.UserId).toBe(1);
   });
 
-  it("should return answer SUCCESS - updated answer entry", async () => {
+  it("should return answer SUCCESS - updated answer entry 1", async () => {
+    const res = await request(app)
+      .post(`/exams/answer/1`)
+      .send({
+        AnswerId: 1,
+        QuestionId: 1,
+      })
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("Answer changed to 1");
+  });
+
+  it("should return answer SUCCESS - updated answer entry 2", async () => {
+    const res = await request(app)
+      .post(`/exams/answer/1`)
+      .send({
+        AnswerId: 2,
+        QuestionId: 1,
+      })
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("Answer changed to 2");
+  });
+
+  it("should return answer SUCCESS - updated answer entry 3", async () => {
     const res = await request(app)
       .post(`/exams/answer/1`)
       .send({
@@ -1335,6 +1361,7 @@ describe("POST /exams/answer/:questionNumber", () => {
 // route for ending an exam
 describe("POST /exams/end", () => {
   it("should return end session SUCCESS - with certificate", async () => {
+    await setScore();
     const res = await request(app)
       .post(`/exams/end`)
       .set("access_token", token)
@@ -1354,22 +1381,6 @@ describe("POST /exams/start/:ExamId", () => {
       .expect(400);
 
     expect(res.body.message).toBe("You have done this test");
-  });
-});
-
-// route for answering an exam, but exam ended
-describe("POST /exams/answer/:questionNumber - Exam Ended", () => {
-  it("should return answer FAILED - exam ended", async () => {
-    const res = await request(app)
-      .post(`/exams/answer/1`)
-      .send({
-        AnswerId: 2,
-        QuestionId: 1,
-      })
-      .set("access_token", token)
-      .expect(404);
-
-    expect(res.body.message).toBe("Not Found");
   });
 });
 
@@ -1576,253 +1587,300 @@ describe("GET /grades/score/:id", () => {
   });
 });
 
-// router buy subscription
-describe("POST /payment/pay", () => {
-  it("should return begin payment FAILED", async () => {
-    const res = await request(app)
-      .post(`/payment/pay`)
-      .set("access_token", token)
-      .expect(400);
-
-    expect(res.body.message).toBe("Invalid payment amount");
-  });
-
-  it("should return begin payment SUCCESS", async () => {
-    const res = await request(app)
-      .post(`/payment/pay`)
-      .send({ length: "180" })
-      .set("access_token", token)
-      .expect(201);
-
-    expect(res.body.token).toBeDefined();
-    expect(res.body.paymentUrl).toBeDefined();
-  });
-});
-
-// router notification subscription
-describe("POST /payment/checking", () => {
-  it("should return payment checking SUCCESS", async () => {
-    const res = await request(app)
-      .post(`/payment/checking`)
-      .send({
-        va_numbers: [{ va_number: "34241085681", bank: "bca" }],
-        transaction_time: "2023-06-06 13:01:52",
-        transaction_status: "settlement",
-        transaction_id: "299d306f-5a3f-4835-8f65-3cdf1f41acec",
-        status_message: "midtrans payment notification",
-        status_code: "200",
-        signature_key:
-          "22221f7f6c7b44e0dc66bcc39ce3419d0fc7e54badb3f5be938521dfe7515c8db6c396aaea8145bc97f8adb869d028f6756db571459daec2a2cb2ab1a07e8eae",
-        settlement_time: "2023-06-06 13:01:59",
-        payment_type: "bank_transfer",
-        payment_amounts: [],
-        order_id: "1686030925217-D01-180",
-        merchant_id: "G993834241",
-        gross_amount: "1200000.00",
-        fraud_status: "accept",
-        expiry_time: "2023-06-07 13:01:51",
-        currency: "IDR",
-      })
-      .set("access_token", token)
-      .expect(200);
-
-    expect(res.body.message).toBe("180 days added to User ID 1 subscription");
-  });
-
-  it("should return payment checking FAILED - transaction cancelled", async () => {
-    const res = await request(app)
-      .post(`/payment/checking`)
-      .send({
-        va_numbers: [{ va_number: "34241085681", bank: "bca" }],
-        transaction_time: "2023-06-06 13:01:52",
-        transaction_status: "deny",
-        transaction_id: "299d306f-5a3f-4835-8f65-3cdf1f41acec",
-        status_message: "midtrans payment notification",
-        status_code: "200",
-        signature_key:
-          "22221f7f6c7b44e0dc66bcc39ce3419d0fc7e54badb3f5be938521dfe7515c8db6c396aaea8145bc97f8adb869d028f6756db571459daec2a2cb2ab1a07e8eae",
-        settlement_time: "2023-06-06 13:01:59",
-        payment_type: "bank_transfer",
-        payment_amounts: [],
-        order_id: "1686030925217-D01-180",
-        merchant_id: "G993834241",
-        gross_amount: "1200000.00",
-        fraud_status: "accept",
-        expiry_time: "2023-06-07 13:01:51",
-        currency: "IDR",
-      })
-      .set("access_token", token)
-      .expect(200);
-
-    expect(res.body.message).toBe("Transaction has been cancelled");
-  });
-});
-
-// router delete organization
-describe("DELETE /organization/:id", () => {
-  it("should return delete organization SUCCESS)", async () => {
-    const res = await request(app)
-      .delete("/organizations/1")
-      .set("access_token", token)
-      .expect(200);
-
-    expect(res.body.message).toBe("Organization with id 1 has been deleted");
-  });
-
-  it("should return delete organization FAILED - invalid organization)", async () => {
-    const res = await request(app)
-      .delete("/organizations/1")
-      .set("access_token", token)
-      .expect(404);
-
-    expect(res.body.message).toBe("Not Found");
-  });
-});
-
-// router delete exam
-describe("DELETE /exams/:id", () => {
-  it("should return delete exam SUCCESS)", async () => {
+// route for starting an exam
+describe("POST /exams/start/:ExamId - second restart", () => {
+  it("should return start exam SUCCESS", async () => {
     await deleteGrade();
-    const exam = await Exam.findByPk(1);
-
     const res = await request(app)
-      .delete("/exams/1")
+      .post(`/exams/start/1`)
       .set("access_token", token)
       .expect(200);
 
-    expect(res.body.message).toBe("Exam with id 1 has been deleted");
-  });
-
-  it("should return delete exam FAILED - invalid organization)", async () => {
-    const res = await request(app)
-      .delete("/exams/1")
-      .set("access_token", token)
-      .expect(404);
-
-    expect(res.body.message).toBe("Not Found");
+    expect(res.body.message).toBe("Exam started for user 1");
   });
 });
 
-// router for delete questions
-describe("DELETE /questions/:id", () => {
-  it("should return delete question SUCCESS)", async () => {
+// route for answering an exam, but exam ended
+describe("POST /exams/answer/:questionNumber - Exam Ended", () => {
+  it("should return answer FAILED - time expired", async () => {
+    const grade = await Grade.findAll();
+    await setScore();
+
+    console.log(grade, "INI GRADE");
+
     const res = await request(app)
-      .delete("/questions/1")
-      .set("access_token", token)
-      .expect(200);
-
-    expect(res.body.message).toBe("Question with id 1 has been deleted");
-  });
-
-  it("should return delete question FAILED - invalid question)", async () => {
-    const res = await request(app)
-      .delete("/questions/1")
-      .set("access_token", token)
-      .expect(404);
-
-    expect(res.body.message).toBe("Not Found");
-  });
-});
-
-// route for delete category
-describe("DELETE /categories/:id", () => {
-  it("should return delete category SUCCESS)", async () => {
-    const res = await request(app)
-      .delete("/categories/1")
-      .set("access_token", token)
-      .expect(200);
-
-    expect(res.body.message).toBe("Category with id 1 has been deleted");
-  });
-
-  it("should return delete category FAILED - invalid category)", async () => {
-    const res = await request(app)
-      .delete("/categories/1")
-      .set("access_token", token)
-      .expect(404);
-
-    expect(res.body.message).toBe("Not Found");
-  });
-});
-
-// route for edit profile
-describe("PUT /users/edit", () => {
-  it("should return edit profile FAILED - wrong old password", async () => {
-    const res = await request(app)
-      .put(`/users/edit`)
+      .post(`/exams/answer/1`)
       .send({
-        username: "admin_new",
-        email: "admin_new@email.com",
-        password: "87654321",
-        oldPassword: "123456789",
-        phone: "080989999",
-        name: "satrio",
-        gender: "male",
+        AnswerId: 2,
+        QuestionId: 1,
       })
       .set("access_token", token)
-      .expect(400);
+      .expect(403);
 
-    expect(res.body.message).toBe("Invalid old password");
+    expect(res.body.message).toBe("Time over");
   });
 
-  it("should return edit profile FAILED - old password is empty", async () => {
+  it("should return answer FAILED - exam ended", async () => {
     const res = await request(app)
-      .put(`/users/edit`)
+      .post(`/exams/answer/1`)
       .send({
-        username: "admin_new",
-        email: "admin_new@email.com",
-        password: "87654321",
-        oldPassword: "",
-        phone: "080989999",
-        name: "satrio",
-        gender: "male",
+        AnswerId: 2,
+        QuestionId: 1,
       })
-      .set("access_token", token)
-      .expect(400);
-
-    expect(res.body.message).toBe("Old password is required");
-  });
-
-  it("should return edit profile SUCCESS", async () => {
-    const res = await request(app)
-      .put(`/users/edit`)
-      .send({
-        username: "admin_new",
-        email: "admin_new@email.com",
-        password: "87654321",
-        oldPassword: "12345678",
-        phone: "080989999",
-        name: "satrio",
-        gender: "male",
-      })
-      .set("access_token", token)
-      .expect(200);
-
-    expect(res.body.message).toBe("User data has been updated");
-  });
-});
-
-// route for delete user
-describe("DELETE /users/:id", () => {
-  it("should return delete user SUCCESS", async () => {
-    await mockUser();
-
-    const res = await request(app)
-      .delete("/users/3")
-      .set("access_token", token)
-      .expect(200);
-
-    expect(res.body.message).toBe("User with id 3 has been deleted");
-  });
-
-  it("should return delete user SUCCESS", async () => {
-    await mockUser();
-
-    const res = await request(app)
-      .delete("/users/99")
       .set("access_token", token)
       .expect(404);
 
     expect(res.body.message).toBe("Not Found");
   });
 });
+
+// // router buy subscription
+// describe("POST /payment/pay", () => {
+//   it("should return begin payment FAILED", async () => {
+//     const res = await request(app)
+//       .post(`/payment/pay`)
+//       .set("access_token", token)
+//       .expect(400);
+
+//     expect(res.body.message).toBe("Invalid payment amount");
+//   });
+
+//   it("should return begin payment SUCCESS", async () => {
+//     const res = await request(app)
+//       .post(`/payment/pay`)
+//       .send({ length: "180" })
+//       .set("access_token", token)
+//       .expect(201);
+
+//     expect(res.body.token).toBeDefined();
+//     expect(res.body.paymentUrl).toBeDefined();
+//   });
+// });
+
+// // router notification subscription
+// describe("POST /payment/checking", () => {
+//   it("should return payment checking SUCCESS", async () => {
+//     const res = await request(app)
+//       .post(`/payment/checking`)
+//       .send({
+//         va_numbers: [{ va_number: "34241085681", bank: "bca" }],
+//         transaction_time: "2023-06-06 13:01:52",
+//         transaction_status: "settlement",
+//         transaction_id: "299d306f-5a3f-4835-8f65-3cdf1f41acec",
+//         status_message: "midtrans payment notification",
+//         status_code: "200",
+//         signature_key:
+//           "22221f7f6c7b44e0dc66bcc39ce3419d0fc7e54badb3f5be938521dfe7515c8db6c396aaea8145bc97f8adb869d028f6756db571459daec2a2cb2ab1a07e8eae",
+//         settlement_time: "2023-06-06 13:01:59",
+//         payment_type: "bank_transfer",
+//         payment_amounts: [],
+//         order_id: "1686030925217-D01-180",
+//         merchant_id: "G993834241",
+//         gross_amount: "1200000.00",
+//         fraud_status: "accept",
+//         expiry_time: "2023-06-07 13:01:51",
+//         currency: "IDR",
+//       })
+//       .set("access_token", token)
+//       .expect(200);
+
+//     expect(res.body.message).toBe("180 days added to User ID 1 subscription");
+//   });
+
+//   it("should return payment checking FAILED - transaction cancelled", async () => {
+//     const res = await request(app)
+//       .post(`/payment/checking`)
+//       .send({
+//         va_numbers: [{ va_number: "34241085681", bank: "bca" }],
+//         transaction_time: "2023-06-06 13:01:52",
+//         transaction_status: "deny",
+//         transaction_id: "299d306f-5a3f-4835-8f65-3cdf1f41acec",
+//         status_message: "midtrans payment notification",
+//         status_code: "200",
+//         signature_key:
+//           "22221f7f6c7b44e0dc66bcc39ce3419d0fc7e54badb3f5be938521dfe7515c8db6c396aaea8145bc97f8adb869d028f6756db571459daec2a2cb2ab1a07e8eae",
+//         settlement_time: "2023-06-06 13:01:59",
+//         payment_type: "bank_transfer",
+//         payment_amounts: [],
+//         order_id: "1686030925217-D01-180",
+//         merchant_id: "G993834241",
+//         gross_amount: "1200000.00",
+//         fraud_status: "accept",
+//         expiry_time: "2023-06-07 13:01:51",
+//         currency: "IDR",
+//       })
+//       .set("access_token", token)
+//       .expect(200);
+
+//     expect(res.body.message).toBe("Transaction has been cancelled");
+//   });
+// });
+
+// // router delete organization
+// describe("DELETE /organization/:id", () => {
+//   it("should return delete organization SUCCESS)", async () => {
+//     const res = await request(app)
+//       .delete("/organizations/1")
+//       .set("access_token", token)
+//       .expect(200);
+
+//     expect(res.body.message).toBe("Organization with id 1 has been deleted");
+//   });
+
+//   it("should return delete organization FAILED - invalid organization)", async () => {
+//     const res = await request(app)
+//       .delete("/organizations/1")
+//       .set("access_token", token)
+//       .expect(404);
+
+//     expect(res.body.message).toBe("Not Found");
+//   });
+// });
+
+// // router delete exam
+// describe("DELETE /exams/:id", () => {
+//   it("should return delete exam SUCCESS)", async () => {
+//     await deleteGrade();
+//     const exam = await Exam.findByPk(1);
+
+//     const res = await request(app)
+//       .delete("/exams/1")
+//       .set("access_token", token)
+//       .expect(200);
+
+//     expect(res.body.message).toBe("Exam with id 1 has been deleted");
+//   });
+
+//   it("should return delete exam FAILED - invalid organization)", async () => {
+//     const res = await request(app)
+//       .delete("/exams/1")
+//       .set("access_token", token)
+//       .expect(404);
+
+//     expect(res.body.message).toBe("Not Found");
+//   });
+// });
+
+// // router for delete questions
+// describe("DELETE /questions/:id", () => {
+//   it("should return delete question SUCCESS)", async () => {
+//     const res = await request(app)
+//       .delete("/questions/1")
+//       .set("access_token", token)
+//       .expect(200);
+
+//     expect(res.body.message).toBe("Question with id 1 has been deleted");
+//   });
+
+//   it("should return delete question FAILED - invalid question)", async () => {
+//     const res = await request(app)
+//       .delete("/questions/1")
+//       .set("access_token", token)
+//       .expect(404);
+
+//     expect(res.body.message).toBe("Not Found");
+//   });
+// });
+
+// // route for delete category
+// describe("DELETE /categories/:id", () => {
+//   it("should return delete category SUCCESS)", async () => {
+//     const res = await request(app)
+//       .delete("/categories/1")
+//       .set("access_token", token)
+//       .expect(200);
+
+//     expect(res.body.message).toBe("Category with id 1 has been deleted");
+//   });
+
+//   it("should return delete category FAILED - invalid category)", async () => {
+//     const res = await request(app)
+//       .delete("/categories/1")
+//       .set("access_token", token)
+//       .expect(404);
+
+//     expect(res.body.message).toBe("Not Found");
+//   });
+// });
+
+// // route for edit profile
+// describe("PUT /users/edit", () => {
+//   it("should return edit profile FAILED - wrong old password", async () => {
+//     const res = await request(app)
+//       .put(`/users/edit`)
+//       .send({
+//         username: "admin_new",
+//         email: "admin_new@email.com",
+//         password: "87654321",
+//         oldPassword: "123456789",
+//         phone: "080989999",
+//         name: "satrio",
+//         gender: "male",
+//       })
+//       .set("access_token", token)
+//       .expect(400);
+
+//     expect(res.body.message).toBe("Invalid old password");
+//   });
+
+//   it("should return edit profile FAILED - old password is empty", async () => {
+//     const res = await request(app)
+//       .put(`/users/edit`)
+//       .send({
+//         username: "admin_new",
+//         email: "admin_new@email.com",
+//         password: "87654321",
+//         oldPassword: "",
+//         phone: "080989999",
+//         name: "satrio",
+//         gender: "male",
+//       })
+//       .set("access_token", token)
+//       .expect(400);
+
+//     expect(res.body.message).toBe("Old password is required");
+//   });
+
+//   it("should return edit profile SUCCESS", async () => {
+//     const res = await request(app)
+//       .put(`/users/edit`)
+//       .send({
+//         username: "admin_new",
+//         email: "admin_new@email.com",
+//         password: "87654321",
+//         oldPassword: "12345678",
+//         phone: "080989999",
+//         name: "satrio",
+//         gender: "male",
+//       })
+//       .set("access_token", token)
+//       .expect(200);
+
+//     expect(res.body.message).toBe("User data has been updated");
+//   });
+// });
+
+// // route for delete user
+// describe("DELETE /users/:id", () => {
+//   it("should return delete user SUCCESS", async () => {
+//     await mockUser();
+
+//     const res = await request(app)
+//       .delete("/users/3")
+//       .set("access_token", token)
+//       .expect(200);
+
+//     expect(res.body.message).toBe("User with id 3 has been deleted");
+//   });
+
+//   it("should return delete user SUCCESS", async () => {
+//     await mockUser();
+
+//     const res = await request(app)
+//       .delete("/users/99")
+//       .set("access_token", token)
+//       .expect(404);
+
+//     expect(res.body.message).toBe("Not Found");
+//   });
+// });

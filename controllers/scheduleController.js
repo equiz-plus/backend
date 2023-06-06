@@ -63,6 +63,10 @@ class scheduleController {
       next(err);
     }
   }
+
+  // CRUD, INCLUDE EXAM LIST
+  // IF END > START, ERROR EDIT
+  // IF START < NOW, ERROR EDIT
 }
 
 module.exports = scheduleController;

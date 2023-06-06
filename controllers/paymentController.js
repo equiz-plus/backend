@@ -109,6 +109,10 @@ class paymentController {
       //   throw new Error("CANNOT_ACCESS");
       // }
 
+      console.log(splitPayment, "INI SPLIT PAYMENT");
+      console.log(paymentId, "INI PAYMENT ID");
+      console.log(findTransaction, "INI TRANSACTION");
+
       if (
         transaction_status === "settlement" ||
         transaction_status === "capture"
@@ -131,8 +135,12 @@ class paymentController {
 
         let totalDays = splitPayment[2];
 
+        console.log(totalDays, "INI TOTAL DAYS");
+
         let expiredDate = new Date().getDay() + Number(totalDays);
         expiredDate = new Date(expiredDate);
+
+        console.log(expiredDate, "INI EXPIRED DATE");
 
         const updateBalance = await User.update(
           {

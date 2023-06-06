@@ -1,6 +1,6 @@
 const errorHandler = (err, req, res, next) => {
-  console.log(err, "<<<<<< ERROR");
-  console.log(err.name, "<<<<<< ERROR NAME");
+  // console.log(err, "<<<<<< ERROR");
+  // console.log(err.name, "<<<<<< ERROR NAME");
 
   let code = 400;
   let msg = "Internal Server Error";
@@ -18,18 +18,6 @@ const errorHandler = (err, req, res, next) => {
     if (err.parent.detail.includes("CategoryId")) {
       code = 400;
       msg = "Invalid Category ID";
-    } else if (err.parent.detail.includes("UserId")) {
-      code = 400;
-      msg = "Invalid User ID";
-    } else if (err.parent.detail.includes("ExamId")) {
-      code = 400;
-      msg = "Invalid Exam ID";
-    } else if (err.parent.detail.includes("OrganizationId")) {
-      code = 400;
-      msg = "Invalid Organization ID";
-    } else if (err.parent.detail.includes("GradeId")) {
-      code = 400;
-      msg = "Invalid Grade ID";
     } else {
       code = 400;
       msg = "Invalid ID";
