@@ -169,6 +169,10 @@ class userExamController {
                 attributes: {
                   exclude: ["createdAt", "updatedAt"],
                 },
+                where: {
+                  UserId: +id,
+                },
+                required: false,
               },
             ],
           },
