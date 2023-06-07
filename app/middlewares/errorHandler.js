@@ -1,4 +1,6 @@
 const errorHandler = (err, req, res, next) => {
+  console.log(err, "INI ERROR");
+
   let code = 400;
   let msg = "Internal Server Error";
 
