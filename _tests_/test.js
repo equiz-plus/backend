@@ -1717,115 +1717,115 @@ describe("GET /statistics", () => {
   });
 });
 
-// // router buy subscription
-// describe("POST /payment/pay", () => {
-//   it("should return begin payment FAILED", async () => {
-//     const res = await request(app)
-//       .post(`/payment/pay`)
-//       .set("access_token", token)
-//       .expect(400);
+// router buy subscription
+describe("POST /payment/pay", () => {
+  it("should return begin payment FAILED", async () => {
+    const res = await request(app)
+      .post(`/payment/pay`)
+      .set("access_token", token)
+      .expect(400);
 
-//     expect(res.body.message).toBe("Invalid payment amount");
-//   });
+    expect(res.body.message).toBe("Invalid payment amount");
+  });
 
-//   it("should return begin payment SUCCESS", async () => {
-//     const res = await request(app)
-//       .post(`/payment/pay`)
-//       .send({ length: "180" })
-//       .set("access_token", token)
-//       .expect(201);
+  it("should return begin payment SUCCESS", async () => {
+    const res = await request(app)
+      .post(`/payment/pay`)
+      .send({ length: "180" })
+      .set("access_token", token)
+      .expect(201);
 
-//     expect(res.body.token).toBeDefined();
-//     expect(res.body.paymentUrl).toBeDefined();
-//   });
-// });
+    expect(res.body.token).toBeDefined();
+    expect(res.body.paymentUrl).toBeDefined();
+  });
+});
 
-// // router notification subscription
-// describe("POST /payment/checking", () => {
-//   it("should return payment checking SUCCESS", async () => {
-//     const res = await request(app)
-//       .post(`/payment/checking`)
-//       .send({
-//         va_numbers: [{ va_number: "34241085681", bank: "bca" }],
-//         transaction_time: "2023-06-06 13:01:52",
-//         transaction_status: "settlement",
-//         transaction_id: "299d306f-5a3f-4835-8f65-3cdf1f41acec",
-//         status_message: "midtrans payment notification",
-//         status_code: "200",
-//         signature_key:
-//           "22221f7f6c7b44e0dc66bcc39ce3419d0fc7e54badb3f5be938521dfe7515c8db6c396aaea8145bc97f8adb869d028f6756db571459daec2a2cb2ab1a07e8eae",
-//         settlement_time: "2023-06-06 13:01:59",
-//         payment_type: "bank_transfer",
-//         payment_amounts: [],
-//         order_id: "1686030925217-D01-180",
-//         merchant_id: "G993834241",
-//         gross_amount: "1200000.00",
-//         fraud_status: "accept",
-//         expiry_time: "2023-06-07 13:01:51",
-//         currency: "IDR",
-//       })
-//       .set("access_token", token)
-//       .expect(200);
+// router notification subscription
+describe("POST /payment/checking", () => {
+  it("should return payment checking SUCCESS", async () => {
+    const res = await request(app)
+      .post(`/payment/checking`)
+      .send({
+        va_numbers: [{ va_number: "34241085681", bank: "bca" }],
+        transaction_time: "2023-06-06 13:01:52",
+        transaction_status: "settlement",
+        transaction_id: "299d306f-5a3f-4835-8f65-3cdf1f41acec",
+        status_message: "midtrans payment notification",
+        status_code: "200",
+        signature_key:
+          "22221f7f6c7b44e0dc66bcc39ce3419d0fc7e54badb3f5be938521dfe7515c8db6c396aaea8145bc97f8adb869d028f6756db571459daec2a2cb2ab1a07e8eae",
+        settlement_time: "2023-06-06 13:01:59",
+        payment_type: "bank_transfer",
+        payment_amounts: [],
+        order_id: "1686030925217-D01-180",
+        merchant_id: "G993834241",
+        gross_amount: "1200000.00",
+        fraud_status: "accept",
+        expiry_time: "2023-06-07 13:01:51",
+        currency: "IDR",
+      })
+      .set("access_token", token)
+      .expect(200);
 
-//     expect(res.body.message).toBe("180 days added to User ID 1 subscription");
-//   });
+    expect(res.body.message).toBe("180 days added to User ID 1 subscription");
+  });
 
-//   it("should return payment checking SUCCESS - pending", async () => {
-//     const res = await request(app)
-//       .post(`/payment/checking`)
-//       .send({
-//         va_numbers: [{ va_number: "34241085681", bank: "bca" }],
-//         transaction_time: "2023-06-06 13:01:52",
-//         transaction_status: "pending",
-//         transaction_id: "299d306f-5a3f-4835-8f65-3cdf1f41acec",
-//         status_message: "midtrans payment notification",
-//         status_code: "200",
-//         signature_key:
-//           "22221f7f6c7b44e0dc66bcc39ce3419d0fc7e54badb3f5be938521dfe7515c8db6c396aaea8145bc97f8adb869d028f6756db571459daec2a2cb2ab1a07e8eae",
-//         settlement_time: "2023-06-06 13:01:59",
-//         payment_type: "bank_transfer",
-//         payment_amounts: [],
-//         order_id: "1686030925217-D01-180",
-//         merchant_id: "G993834241",
-//         gross_amount: "1200000.00",
-//         fraud_status: "accept",
-//         expiry_time: "2023-06-07 13:01:51",
-//         currency: "IDR",
-//       })
-//       .set("access_token", token)
-//       .expect(200);
+  it("should return payment checking SUCCESS - pending", async () => {
+    const res = await request(app)
+      .post(`/payment/checking`)
+      .send({
+        va_numbers: [{ va_number: "34241085681", bank: "bca" }],
+        transaction_time: "2023-06-06 13:01:52",
+        transaction_status: "pending",
+        transaction_id: "299d306f-5a3f-4835-8f65-3cdf1f41acec",
+        status_message: "midtrans payment notification",
+        status_code: "200",
+        signature_key:
+          "22221f7f6c7b44e0dc66bcc39ce3419d0fc7e54badb3f5be938521dfe7515c8db6c396aaea8145bc97f8adb869d028f6756db571459daec2a2cb2ab1a07e8eae",
+        settlement_time: "2023-06-06 13:01:59",
+        payment_type: "bank_transfer",
+        payment_amounts: [],
+        order_id: "1686030925217-D01-180",
+        merchant_id: "G993834241",
+        gross_amount: "1200000.00",
+        fraud_status: "accept",
+        expiry_time: "2023-06-07 13:01:51",
+        currency: "IDR",
+      })
+      .set("access_token", token)
+      .expect(200);
 
-//     expect(res.body.message).toBe("Transaction has been initiated");
-//   });
+    expect(res.body.message).toBe("Transaction has been initiated");
+  });
 
-//   it("should return payment checking FAILED - transaction cancelled", async () => {
-//     const res = await request(app)
-//       .post(`/payment/checking`)
-//       .send({
-//         va_numbers: [{ va_number: "34241085681", bank: "bca" }],
-//         transaction_time: "2023-06-06 13:01:52",
-//         transaction_status: "deny",
-//         transaction_id: "299d306f-5a3f-4835-8f65-3cdf1f41acec",
-//         status_message: "midtrans payment notification",
-//         status_code: "200",
-//         signature_key:
-//           "22221f7f6c7b44e0dc66bcc39ce3419d0fc7e54badb3f5be938521dfe7515c8db6c396aaea8145bc97f8adb869d028f6756db571459daec2a2cb2ab1a07e8eae",
-//         settlement_time: "2023-06-06 13:01:59",
-//         payment_type: "bank_transfer",
-//         payment_amounts: [],
-//         order_id: "1686030925217-D01-180",
-//         merchant_id: "G993834241",
-//         gross_amount: "1200000.00",
-//         fraud_status: "accept",
-//         expiry_time: "2023-06-07 13:01:51",
-//         currency: "IDR",
-//       })
-//       .set("access_token", token)
-//       .expect(200);
+  it("should return payment checking FAILED - transaction cancelled", async () => {
+    const res = await request(app)
+      .post(`/payment/checking`)
+      .send({
+        va_numbers: [{ va_number: "34241085681", bank: "bca" }],
+        transaction_time: "2023-06-06 13:01:52",
+        transaction_status: "deny",
+        transaction_id: "299d306f-5a3f-4835-8f65-3cdf1f41acec",
+        status_message: "midtrans payment notification",
+        status_code: "200",
+        signature_key:
+          "22221f7f6c7b44e0dc66bcc39ce3419d0fc7e54badb3f5be938521dfe7515c8db6c396aaea8145bc97f8adb869d028f6756db571459daec2a2cb2ab1a07e8eae",
+        settlement_time: "2023-06-06 13:01:59",
+        payment_type: "bank_transfer",
+        payment_amounts: [],
+        order_id: "1686030925217-D01-180",
+        merchant_id: "G993834241",
+        gross_amount: "1200000.00",
+        fraud_status: "accept",
+        expiry_time: "2023-06-07 13:01:51",
+        currency: "IDR",
+      })
+      .set("access_token", token)
+      .expect(200);
 
-//     expect(res.body.message).toBe("Transaction has been cancelled");
-//   });
-// });
+    expect(res.body.message).toBe("Transaction has been cancelled");
+  });
+});
 
 // router create schedule
 describe("POST /schedules", () => {
@@ -2179,5 +2179,3 @@ describe("DELETE /users/:id", () => {
     expect(res.body.message).toBe("Not Found");
   });
 });
-
-// describe
