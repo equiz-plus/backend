@@ -5,6 +5,7 @@ const {
   UserAnswer,
   Question,
   Certificate,
+  Organization,
 } = require("../models");
 class gradeController {
   // find user grade by id
@@ -44,6 +45,13 @@ class gradeController {
             model: Exam,
             attributes: {
               exclude: ["createdAt", "updatedAt"],
+            },
+            include: {
+              model: Organization,
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+              require: false,
             },
           },
           {
@@ -93,30 +101,30 @@ class gradeController {
       const { page, displayLength, order } = req.query;
 
       // find specific grade
-      const findGrade = await Grade.findOne(
-        {
-          include: [
-            {
-              model: Exam,
-              attributes: {
-                exclude: ["createdAt", "updatedAt"],
-              },
+      const findGrade = await Grade.findByPk(+GradeId, {
+        include: [
+          {
+            model: Exam,
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
             },
-            {
-              model: Certificate,
+            include: {
+              model: Organization,
               attributes: {
                 exclude: ["createdAt", "updatedAt"],
               },
               require: false,
             },
-          ],
-        },
-        {
-          where: {
-            id: +GradeId,
           },
-        }
-      );
+          {
+            model: Certificate,
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+            require: false,
+          },
+        ],
+      });
 
       if (!findGrade) {
         throw { name: "NotFound" };
@@ -195,6 +203,7 @@ class gradeController {
         userScore: findGrade.grade,
         exam: findGrade.Exam,
         certificate: findGrade.Certificates,
+        organization: findGrade.Organizations,
         correctAnswers: findGrade.totalCorrect,
         totalAnswers: myAnswer.count,
         answers: myAnswer.rows,

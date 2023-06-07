@@ -1,5 +1,14 @@
 const { Op } = require("sequelize");
-const { Exam, Session, Category, Grade, ExamSchedule } = require("../models");
+const {
+  Exam,
+  Session,
+  Category,
+  Grade,
+  ExamSchedule,
+  User,
+  Question,
+  Certificate,
+} = require("../models");
 
 // list of exams
 // *admin
@@ -261,6 +270,30 @@ class examController {
       if (!exams) throw { name: "NotFound" };
 
       res.status(200).json(exams);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  //show statistics
+  // *admin
+  static async statistic(req, res, next) {
+    try {
+      //exams
+      const totalExam = await Exam.count();
+      // student
+      const totalStudent = await User.count();
+      // questions
+      const totalQuestion = await Question.count();
+      // certificate
+      const totalCertificate = await Certificate.count();
+
+      res.status(200).json({
+        totalExam,
+        totalStudent,
+        totalQuestion,
+        totalCertificate,
+      });
     } catch (err) {
       next(err);
     }

@@ -1372,6 +1372,32 @@ describe("POST /exams/end", () => {
   });
 });
 
+// route for checking user grade by admin
+describe("GET /grades/score/:id", () => {
+  it("should return student specific grade with detail SUCCESS", async () => {
+    const res = await request(app)
+      .get(`/grades/score/1`)
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body[0].id).toBe(1);
+    expect(res.body[0].questionsCount).toBe(1);
+    expect(res.body[0].totalCorrect).toBe(1);
+    expect(res.body[0].grade).toBe(100);
+    expect(res.body[0].ExamId).toBe(1);
+    expect(res.body[0].UserId).toBe(1);
+  });
+
+  it("should return student specific grade with detail FAILED - invalid grade id", async () => {
+    const res = await request(app)
+      .get(`/grades/score/100`)
+      .set("access_token", token)
+      .expect(404);
+
+    expect(res.body.message).toBe("Not Found");
+  });
+});
+
 // route for user trying to retake exam, but failed
 describe("POST /exams/start/:ExamId", () => {
   it("should return start exam SUCCESS", async () => {
@@ -1561,32 +1587,6 @@ describe("GET /grades/score/detail/:GradeId", () => {
   });
 });
 
-// route for checking user grade by admin
-describe("GET /grades/score/:id", () => {
-  it("should return student specific grade with detail SUCCESS", async () => {
-    const res = await request(app)
-      .get(`/grades/score/1`)
-      .set("access_token", token)
-      .expect(200);
-
-    expect(res.body[0].id).toBe(1);
-    expect(res.body[0].questionsCount).toBe(1);
-    expect(res.body[0].totalCorrect).toBe(1);
-    expect(res.body[0].grade).toBe(100);
-    expect(res.body[0].ExamId).toBe(1);
-    expect(res.body[0].UserId).toBe(1);
-  });
-
-  it("should return student specific grade with detail FAILED - invalid grade id", async () => {
-    const res = await request(app)
-      .get(`/grades/score/100`)
-      .set("access_token", token)
-      .expect(404);
-
-    expect(res.body.message).toBe("Not Found");
-  });
-});
-
 // route for starting an exam
 describe("POST /exams/start/:ExamId - second restart", () => {
   it("should return start exam SUCCESS", async () => {
@@ -1604,9 +1604,15 @@ describe("POST /exams/start/:ExamId - second restart", () => {
 describe("POST /exams/answer/:questionNumber - Exam Ended", () => {
   it("should return answer FAILED - time expired", async () => {
     const grade = await Grade.findAll();
-    await setScore();
 
-    console.log(grade, "INI GRADE");
+    const closeTime = await Session.update(
+      {
+        timeStop: new Date("2023-06-05"),
+      },
+      {
+        where: { id: 3 },
+      }
+    );
 
     const res = await request(app)
       .post(`/exams/answer/1`)
@@ -1631,6 +1637,81 @@ describe("POST /exams/answer/:questionNumber - Exam Ended", () => {
       .expect(404);
 
     expect(res.body.message).toBe("Not Found");
+  });
+});
+
+// route for starting an exam
+describe("POST /exams/start/:ExamId - third restart", () => {
+  it("should return start exam SUCCESS", async () => {
+    await deleteGrade();
+    const res = await request(app)
+      .post(`/exams/start/1`)
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("Exam started for user 1");
+  });
+});
+
+// route for ending an exam
+describe("POST /exams/end - end exam 2", () => {
+  it("should return end session SUCCESS - with certificate and org", async () => {
+    const updateCompany = await Exam.update(
+      {
+        OrganizationId: 1,
+      },
+      {
+        where: {
+          id: 1,
+        },
+      }
+    );
+
+    await setScore();
+    const res = await request(app)
+      .post(`/exams/end`)
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("User 1 current exam has ended");
+    expect(res.body.status).toBe("Passed");
+  });
+});
+
+// route for testing free exam limit
+describe("POST /exams/start/:ExamId - third restart", () => {
+  it("should return start exam SUCCESS", async () => {
+    for (let i = 0; i < 10; i++) {
+      const newGrade = await Grade.create({
+        questionsCount: 5,
+        totalCorrect: 0,
+        grade: 0,
+        ExamId: 1,
+        UserId: 1,
+      });
+    }
+
+    const res = await request(app)
+      .post(`/exams/start/1`)
+      .set("access_token", token)
+      .expect(403);
+
+    expect(res.body.message).toBe("You reached the exam limit for free User");
+  });
+});
+
+// route for webstats
+describe("GET /statistics", () => {
+  it("should return statistics SUCCESS", async () => {
+    const res = await request(app)
+      .get(`/statistics`)
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.totalExam).toBe(1);
+    expect(res.body.totalStudent).toBe(1);
+    expect(res.body.totalQuestion).toBe(1);
+    expect(res.body.totalCertificate).toBe(3);
   });
 });
 
@@ -1687,6 +1768,34 @@ describe("POST /exams/answer/:questionNumber - Exam Ended", () => {
 //     expect(res.body.message).toBe("180 days added to User ID 1 subscription");
 //   });
 
+//   it("should return payment checking SUCCESS - pending", async () => {
+//     const res = await request(app)
+//       .post(`/payment/checking`)
+//       .send({
+//         va_numbers: [{ va_number: "34241085681", bank: "bca" }],
+//         transaction_time: "2023-06-06 13:01:52",
+//         transaction_status: "pending",
+//         transaction_id: "299d306f-5a3f-4835-8f65-3cdf1f41acec",
+//         status_message: "midtrans payment notification",
+//         status_code: "200",
+//         signature_key:
+//           "22221f7f6c7b44e0dc66bcc39ce3419d0fc7e54badb3f5be938521dfe7515c8db6c396aaea8145bc97f8adb869d028f6756db571459daec2a2cb2ab1a07e8eae",
+//         settlement_time: "2023-06-06 13:01:59",
+//         payment_type: "bank_transfer",
+//         payment_amounts: [],
+//         order_id: "1686030925217-D01-180",
+//         merchant_id: "G993834241",
+//         gross_amount: "1200000.00",
+//         fraud_status: "accept",
+//         expiry_time: "2023-06-07 13:01:51",
+//         currency: "IDR",
+//       })
+//       .set("access_token", token)
+//       .expect(200);
+
+//     expect(res.body.message).toBe("Transaction has been initiated");
+//   });
+
 //   it("should return payment checking FAILED - transaction cancelled", async () => {
 //     const res = await request(app)
 //       .post(`/payment/checking`)
@@ -1715,6 +1824,67 @@ describe("POST /exams/answer/:questionNumber - Exam Ended", () => {
 //     expect(res.body.message).toBe("Transaction has been cancelled");
 //   });
 // });
+
+// router create schedule
+describe("POST /schedules", () => {
+  it("should return create schedules SUCCESS", async () => {
+    const res = await request(app)
+      .post(`/schedules`)
+      .send({
+        ExamId: 1,
+        startingDate: "2023-07-09",
+        endDate: "2023-07-10",
+      })
+      .set("access_token", token)
+      .expect(201);
+
+    console.log(res, "INI RESPONSE ADD SCHEDULE");
+
+    expect(res.body.schedule.id).toBe(1);
+  });
+
+  it("should return create schedules FAILED - start date earlier than today", async () => {
+    const res = await request(app)
+      .post(`/schedules`)
+      .send({
+        ExamId: 1,
+        startingDate: "2023-07-01",
+        endDate: "2023-07-10",
+      })
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("Start date must be smaller than end date");
+  });
+
+  it("should return create schedules FAILED - start date earlier than end date", async () => {
+    const res = await request(app)
+      .post(`/schedules`)
+      .send({
+        ExamId: 1,
+        startingDate: "2023-07-01",
+        endDate: "2023-06-29",
+      })
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("Start date must be smaller than end date");
+  });
+
+  it("should return create schedules FAILED - invalid date", async () => {
+    const res = await request(app)
+      .post(`/schedules`)
+      .send({
+        ExamId: 1,
+        startingDate: "KOALA",
+        endDate: "2023-06-29",
+      })
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("Please check your input");
+  });
+});
 
 // // router delete organization
 // describe("DELETE /organization/:id", () => {
@@ -1841,6 +2011,15 @@ describe("POST /exams/answer/:questionNumber - Exam Ended", () => {
 //     expect(res.body.message).toBe("Old password is required");
 //   });
 
+//   it("should return edit profile FAILED - nothing update", async () => {
+//     const res = await request(app)
+//       .put(`/users/edit`)
+//       .set("access_token", token)
+//       .expect(400);
+
+//     expect(res.body.message).toBe("Didn't change anything");
+//   });
+
 //   it("should return edit profile SUCCESS", async () => {
 //     const res = await request(app)
 //       .put(`/users/edit`)
@@ -1884,3 +2063,5 @@ describe("POST /exams/answer/:questionNumber - Exam Ended", () => {
 //     expect(res.body.message).toBe("Not Found");
 //   });
 // });
+
+// describe

@@ -10,6 +10,8 @@ const certificates = require("./certificates.js");
 const payment = require("./payment.js");
 const authController = require("../controllers/authController");
 const examSchedule = require("./examschedule.js");
+const examController = require("../controllers/examController.js");
+const { isLoggedIn, isAdmin } = require("../middlewares");
 
 router.post("/register", authController.register);
 router.post("/login", authController.login);
@@ -24,5 +26,6 @@ router.use("/organizations", organizations);
 router.use("/certificates", certificates);
 router.use("/payment", payment);
 router.use("/schedules", examSchedule);
+router.get("/statistics", isLoggedIn, isAdmin, examController.statistic);
 
 module.exports = router;

@@ -64,8 +64,6 @@ class userExamController {
 
       if (gradeExist) throw { name: "ExamTaken" };
 
-      console.log(exam.totalQuestions, "INI TOTAL QUESTIONS");
-
       // TODO: CHECK IF THIS IS REALLY RANDOM !
       // get random questions for exam
       const randomQuestions = await Question.findAll({
@@ -75,8 +73,6 @@ class userExamController {
         order: [[Sequelize.fn("RANDOM")]],
         limit: +exam.totalQuestions,
       });
-
-      console.log(randomQuestions, "INI RANDOM QUESTIONS");
 
       if (randomQuestions.length <= 0) {
         throw { name: "NoQuestion" };

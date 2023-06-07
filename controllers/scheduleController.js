@@ -21,7 +21,7 @@ class scheduleController {
 
       const findExam = await Exam.findOne({
         where: {
-          id: ExamId,
+          id: +ExamId,
         },
       });
 
@@ -29,7 +29,9 @@ class scheduleController {
       const start = new Date(startingDate);
       const end = new Date(endDate);
 
-      if (start > end) {
+      if (isNaN(start) || isNaN(end)) {
+        throw { name: "InvalidInput" };
+      } else if (start > end) {
         throw { name: "InvalidDate" };
       } else if (start < now) {
         throw { name: "InvalidDate" };
