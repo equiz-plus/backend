@@ -7,7 +7,7 @@ services:
     ports:
       - "80:3000"
     environment:
-      TOKEN_KEY: ${USER_SERVICE}
+      TOKEN_KEY: ${TOKEN_KEY}
       MAIL_USER: ${MAIL_USER}
       MAIL_PASS: ${MAIL_PASS}
       BASE_URL: ${BASE_URL}
