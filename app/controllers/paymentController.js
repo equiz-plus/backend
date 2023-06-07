@@ -52,7 +52,7 @@ class paymentController {
         headerRequest,
         {
           headers: {
-            Authorization: `${process.env.MIDTRANS_AUTH}`,
+            Authorization: `Basic ${process.env.MIDTRANS_AUTH}`,
             "Content-Type": "application/json",
           },
         }
