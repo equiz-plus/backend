@@ -13,8 +13,6 @@ const cron = require("node-cron");
  # * * * * * *
 */
 
-//ini 10 menit artinya
-// dipanggil di app.js
 function sendNotification() {
   const automate = cron.schedule("5 * * * * *", async () => {
     try {

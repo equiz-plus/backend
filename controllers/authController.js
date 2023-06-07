@@ -125,7 +125,7 @@ class authController {
         name: user.name,
         avatar: user.avatar,
         email: user.email,
-        isPremium: user.premiumStatus,
+        isPremium: premiumStatus,
         id: user.id,
       });
     } catch (err) {

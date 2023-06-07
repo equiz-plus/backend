@@ -170,6 +170,13 @@ class scheduleController {
       next(err);
     }
   }
+
+  static async checkSchedule(req, res, next) {
+    try {
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 module.exports = scheduleController;
