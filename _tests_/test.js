@@ -16,6 +16,7 @@ const {
   deleteUserAnswer,
   deleteCertificate,
   deleteOrganizations,
+  deleteSchedule,
 } = require("../lib/destroyTables");
 
 // cleaning
@@ -27,6 +28,7 @@ afterAll(async () => {
   await deleteUserAnswer();
   await deleteCertificate();
   await deleteOrganizations();
+  await deleteSchedule();
 });
 
 // route for register
@@ -1893,9 +1895,110 @@ describe("GET /schedules", () => {
       .set("access_token", token)
       .expect(200);
 
-    console.log(res);
+    expect(res.body[0].id).toBe(1);
+    expect(res.body[0].ExamId).toBe(1);
+  });
+});
 
-    expect(res.body.schedule.id).toBe(1);
+// router get schedule by ID
+describe("GET /schedules/:id", () => {
+  it("should return get schedules SUCCESS", async () => {
+    const res = await request(app)
+      .get(`/schedules/1`)
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.id).toBe(1);
+    expect(res.body.ExamId).toBe(1);
+  });
+
+  it("should return get schedules FAILED - invalid schedule id", async () => {
+    const res = await request(app)
+      .get(`/schedules/999`)
+      .set("access_token", token)
+      .expect(404);
+
+    expect(res.body.message).toBe("Not Found");
+  });
+});
+
+// router edit schedule
+describe("PUT /schedules/1", () => {
+  it("should return edit schedules SUCCESS", async () => {
+    const res = await request(app)
+      .put(`/schedules/1`)
+      .send({
+        ExamId: 1,
+        startingDate: "2023-08-09",
+        endDate: "2023-08-10",
+      })
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("Schedule for Exam ID 1 updated");
+  });
+
+  it("should return edit schedules FAILED - start date earlier than today", async () => {
+    const res = await request(app)
+      .put(`/schedules/1`)
+      .send({
+        ExamId: 1,
+        startingDate: "2023-06-01",
+        endDate: "2023-08-10",
+      })
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("Start date must be smaller than end date");
+  });
+
+  it("should return edit schedules FAILED - start date latter than end date", async () => {
+    const res = await request(app)
+      .put(`/schedules/1`)
+      .send({
+        ExamId: 1,
+        startingDate: "2023-08-29",
+        endDate: "2023-08-1",
+      })
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("Start date must be smaller than end date");
+  });
+
+  it("should return edit schedules FAILED - invalid date", async () => {
+    const res = await request(app)
+      .put(`/schedules/1`)
+      .send({
+        ExamId: 1,
+        startingDate: "KOALA",
+        endDate: "2023-06-29",
+      })
+      .set("access_token", token)
+      .expect(400);
+
+    expect(res.body.message).toBe("Please check your input");
+  });
+});
+
+// router delete schedule
+describe("DELETE /schedules/:id", () => {
+  it("should return delete schedules SUCCESS", async () => {
+    const res = await request(app)
+      .delete(`/schedules/1`)
+      .set("access_token", token)
+      .expect(200);
+
+    expect(res.body.message).toBe("Exam schedule ID 1 deleted successfully");
+  });
+
+  it("should return delete schedules FAILED", async () => {
+    const res = await request(app)
+      .delete(`/schedules/99`)
+      .set("access_token", token)
+      .expect(404);
+
+    expect(res.body.message).toBe("Not Found");
   });
 });
 

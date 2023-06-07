@@ -68,6 +68,10 @@ class scheduleController {
       if (deleteSchedule <= 0) {
         throw { name: "NotFound" };
       }
+
+      res.status(200).json({
+        message: `Exam schedule ID ${id} deleted successfully`,
+      });
     } catch (err) {
       next(err);
     }
@@ -88,7 +92,9 @@ class scheduleController {
       const start = new Date(startingDate);
       const end = new Date(endDate);
 
-      if (start > end) {
+      if (isNaN(start) || isNaN(end)) {
+        throw { name: "InvalidInput" };
+      } else if (start > end) {
         throw { name: "InvalidDate" };
       } else if (start < now) {
         throw { name: "InvalidDate" };
@@ -111,6 +117,10 @@ class scheduleController {
         }
       );
 
+      if (schedule.length <= 0) {
+        throw { name: "NotFound" };
+      }
+
       res.status(200).json({
         message: `Schedule for Exam ID ${ExamId} updated`,
       });
@@ -121,9 +131,41 @@ class scheduleController {
 
   static async getSchedule(req, res, next) {
     try {
-      const schedule = ExamSchedule.findAll();
+      const schedule = await ExamSchedule.findAll({
+        include: {
+          model: Exam,
+          include: {
+            model: Organization,
+            require: false,
+          },
+        },
+      });
 
       res.status(200).json(schedule);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async getScheduleById(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      const singleSchedule = await ExamSchedule.findByPk(+id, {
+        include: {
+          model: Exam,
+          include: {
+            model: Organization,
+            require: false,
+          },
+        },
+      });
+
+      if (!singleSchedule) {
+        throw { name: "NotFound" };
+      }
+
+      res.status(200).json(singleSchedule);
     } catch (err) {
       next(err);
     }

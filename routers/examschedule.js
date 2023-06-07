@@ -7,6 +7,7 @@ router.use(isLoggedIn);
 
 router.post("/", isAdmin, scheduleController.createSchedule);
 router.get("/", scheduleController.getSchedule);
+router.get("/:id", scheduleController.getScheduleById);
 router.put("/:id", isAdmin, scheduleController.editSchedule);
 router.delete("/:id", isAdmin, scheduleController.deleteSchedule);
 
