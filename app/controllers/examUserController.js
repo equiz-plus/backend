@@ -481,7 +481,6 @@ class userExamController {
         const now = new Date();
 
         if (activeSession.timeStop < now) {
-          console.log("ACTIVE SESSION EXPIRED<<<<<<<<<<<<<<<<<<<<<<<<<");
           await Session.destroy({
             where: {
               UserId: +id,

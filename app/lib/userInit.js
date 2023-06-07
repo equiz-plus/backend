@@ -38,7 +38,6 @@ const setScore = async () => {
       },
     }
   );
-  console.log(grade, "INI GRADE DAH KEUPDATE");
 
   const oldDate = new Date("2022-03-25");
 
@@ -52,7 +51,6 @@ const setScore = async () => {
       },
     }
   );
-  console.log(session, "INI SESSION DAH KEUPDATE");
 
   return;
 };

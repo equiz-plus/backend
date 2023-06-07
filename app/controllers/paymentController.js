@@ -47,12 +47,15 @@ class paymentController {
         },
       };
 
+      const authorization = `Basic ${process.env.MIDTRANS_AUTH}`;
+      console.log(authorization, "INI AUTHORIZATION");
+
       const midtransResponse = await axios.post(
         "https://app.sandbox.midtrans.com/snap/v1/transactions",
         headerRequest,
         {
           headers: {
-            Authorization: `Basic ${process.env.MIDTRANS_AUTH}`,
+            Authorization: authorization,
             "Content-Type": "application/json",
           },
         }
@@ -116,10 +119,6 @@ class paymentController {
       //   throw new Error("CANNOT_ACCESS");
       // }
 
-      console.log(splitPayment, "INI SPLIT PAYMENT");
-      console.log(paymentId, "INI PAYMENT ID");
-      console.log(findTransaction, "INI TRANSACTION");
-
       if (
         transaction_status === "settlement" ||
         transaction_status === "capture"
@@ -142,8 +141,6 @@ class paymentController {
 
         let totalDays = Number(splitPayment[2]);
 
-        console.log(totalDays, "INI TOTAL DAYS");
-
         let currentExpiry;
 
         if (findTransaction.User.premiumExpiry === null) {
@@ -152,14 +149,10 @@ class paymentController {
           currentExpiry = new Date(findTransaction.User.premiumExpiry);
         }
 
-        console.log(currentExpiry, "INI CURRENT EXPIRY");
-
         let expiredDate = currentExpiry.setDate(
           currentExpiry.getDate() + totalDays
         );
         expiredDate = new Date(expiredDate);
-
-        console.log(expiredDate, "INI NEW EXPIRED DATE");
 
         const updateBalance = await User.update(
           {

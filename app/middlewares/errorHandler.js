@@ -1,7 +1,4 @@
 const errorHandler = (err, req, res, next) => {
-  // console.log(err, "<<<<<< ERROR");
-  // console.log(err.name, "<<<<<< ERROR NAME");
-
   let code = 400;
   let msg = "Internal Server Error";
 
