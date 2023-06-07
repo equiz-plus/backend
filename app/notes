@@ -1,6 +1,0 @@
-app pass gogle : gpjncldaplljkkts
-
-
-programatic link
-
-@click.prevent="this.$router.push(`/send/${voucher.id}`)"
