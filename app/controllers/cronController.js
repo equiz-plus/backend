@@ -15,7 +15,7 @@ const { ExamSchedule, Exam } = require("../models/index");
 */
 
 function examScheduler() {
-  const automate = cron.schedule("1 * * * * *", async () => {
+  const automate = cron.schedule("* 1 * * * *", async () => {
     try {
       console.log("---------------------");
       console.log("Exam has been adjusted by Cron Job.");
