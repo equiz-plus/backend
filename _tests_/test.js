@@ -1838,9 +1838,8 @@ describe("POST /schedules", () => {
       .set("access_token", token)
       .expect(201);
 
-    console.log(res, "INI RESPONSE ADD SCHEDULE");
-
     expect(res.body.schedule.id).toBe(1);
+    expect(res.body.schedule.ExamId).toBe(1);
   });
 
   it("should return create schedules FAILED - start date earlier than today", async () => {
@@ -1848,7 +1847,7 @@ describe("POST /schedules", () => {
       .post(`/schedules`)
       .send({
         ExamId: 1,
-        startingDate: "2023-07-01",
+        startingDate: "2023-06-01",
         endDate: "2023-07-10",
       })
       .set("access_token", token)
@@ -1886,182 +1885,196 @@ describe("POST /schedules", () => {
   });
 });
 
-// // router delete organization
-// describe("DELETE /organization/:id", () => {
-//   it("should return delete organization SUCCESS)", async () => {
-//     const res = await request(app)
-//       .delete("/organizations/1")
-//       .set("access_token", token)
-//       .expect(200);
+// router list schedule
+describe("GET /schedules", () => {
+  it("should return get schedules SUCCESS", async () => {
+    const res = await request(app)
+      .get(`/schedules`)
+      .set("access_token", token)
+      .expect(200);
 
-//     expect(res.body.message).toBe("Organization with id 1 has been deleted");
-//   });
+    console.log(res);
 
-//   it("should return delete organization FAILED - invalid organization)", async () => {
-//     const res = await request(app)
-//       .delete("/organizations/1")
-//       .set("access_token", token)
-//       .expect(404);
+    expect(res.body.schedule.id).toBe(1);
+  });
+});
 
-//     expect(res.body.message).toBe("Not Found");
-//   });
-// });
+// router delete organization
+describe("DELETE /organization/:id", () => {
+  it("should return delete organization SUCCESS)", async () => {
+    const res = await request(app)
+      .delete("/organizations/1")
+      .set("access_token", token)
+      .expect(200);
 
-// // router delete exam
-// describe("DELETE /exams/:id", () => {
-//   it("should return delete exam SUCCESS)", async () => {
-//     await deleteGrade();
-//     const exam = await Exam.findByPk(1);
+    expect(res.body.message).toBe("Organization with id 1 has been deleted");
+  });
 
-//     const res = await request(app)
-//       .delete("/exams/1")
-//       .set("access_token", token)
-//       .expect(200);
+  it("should return delete organization FAILED - invalid organization)", async () => {
+    const res = await request(app)
+      .delete("/organizations/1")
+      .set("access_token", token)
+      .expect(404);
 
-//     expect(res.body.message).toBe("Exam with id 1 has been deleted");
-//   });
+    expect(res.body.message).toBe("Not Found");
+  });
+});
 
-//   it("should return delete exam FAILED - invalid organization)", async () => {
-//     const res = await request(app)
-//       .delete("/exams/1")
-//       .set("access_token", token)
-//       .expect(404);
+// router delete exam
+describe("DELETE /exams/:id", () => {
+  it("should return delete exam SUCCESS)", async () => {
+    await deleteGrade();
+    const exam = await Exam.findByPk(1);
 
-//     expect(res.body.message).toBe("Not Found");
-//   });
-// });
+    const res = await request(app)
+      .delete("/exams/1")
+      .set("access_token", token)
+      .expect(200);
 
-// // router for delete questions
-// describe("DELETE /questions/:id", () => {
-//   it("should return delete question SUCCESS)", async () => {
-//     const res = await request(app)
-//       .delete("/questions/1")
-//       .set("access_token", token)
-//       .expect(200);
+    expect(res.body.message).toBe("Exam with id 1 has been deleted");
+  });
 
-//     expect(res.body.message).toBe("Question with id 1 has been deleted");
-//   });
+  it("should return delete exam FAILED - invalid organization)", async () => {
+    const res = await request(app)
+      .delete("/exams/1")
+      .set("access_token", token)
+      .expect(404);
 
-//   it("should return delete question FAILED - invalid question)", async () => {
-//     const res = await request(app)
-//       .delete("/questions/1")
-//       .set("access_token", token)
-//       .expect(404);
+    expect(res.body.message).toBe("Not Found");
+  });
+});
 
-//     expect(res.body.message).toBe("Not Found");
-//   });
-// });
+// router for delete questions
+describe("DELETE /questions/:id", () => {
+  it("should return delete question SUCCESS)", async () => {
+    const res = await request(app)
+      .delete("/questions/1")
+      .set("access_token", token)
+      .expect(200);
 
-// // route for delete category
-// describe("DELETE /categories/:id", () => {
-//   it("should return delete category SUCCESS)", async () => {
-//     const res = await request(app)
-//       .delete("/categories/1")
-//       .set("access_token", token)
-//       .expect(200);
+    expect(res.body.message).toBe("Question with id 1 has been deleted");
+  });
 
-//     expect(res.body.message).toBe("Category with id 1 has been deleted");
-//   });
+  it("should return delete question FAILED - invalid question)", async () => {
+    const res = await request(app)
+      .delete("/questions/1")
+      .set("access_token", token)
+      .expect(404);
 
-//   it("should return delete category FAILED - invalid category)", async () => {
-//     const res = await request(app)
-//       .delete("/categories/1")
-//       .set("access_token", token)
-//       .expect(404);
+    expect(res.body.message).toBe("Not Found");
+  });
+});
 
-//     expect(res.body.message).toBe("Not Found");
-//   });
-// });
+// route for delete category
+describe("DELETE /categories/:id", () => {
+  it("should return delete category SUCCESS)", async () => {
+    const res = await request(app)
+      .delete("/categories/1")
+      .set("access_token", token)
+      .expect(200);
 
-// // route for edit profile
-// describe("PUT /users/edit", () => {
-//   it("should return edit profile FAILED - wrong old password", async () => {
-//     const res = await request(app)
-//       .put(`/users/edit`)
-//       .send({
-//         username: "admin_new",
-//         email: "admin_new@email.com",
-//         password: "87654321",
-//         oldPassword: "123456789",
-//         phone: "080989999",
-//         name: "satrio",
-//         gender: "male",
-//       })
-//       .set("access_token", token)
-//       .expect(400);
+    expect(res.body.message).toBe("Category with id 1 has been deleted");
+  });
 
-//     expect(res.body.message).toBe("Invalid old password");
-//   });
+  it("should return delete category FAILED - invalid category)", async () => {
+    const res = await request(app)
+      .delete("/categories/1")
+      .set("access_token", token)
+      .expect(404);
 
-//   it("should return edit profile FAILED - old password is empty", async () => {
-//     const res = await request(app)
-//       .put(`/users/edit`)
-//       .send({
-//         username: "admin_new",
-//         email: "admin_new@email.com",
-//         password: "87654321",
-//         oldPassword: "",
-//         phone: "080989999",
-//         name: "satrio",
-//         gender: "male",
-//       })
-//       .set("access_token", token)
-//       .expect(400);
+    expect(res.body.message).toBe("Not Found");
+  });
+});
 
-//     expect(res.body.message).toBe("Old password is required");
-//   });
+// route for edit profile
+describe("PUT /users/edit", () => {
+  it("should return edit profile FAILED - wrong old password", async () => {
+    const res = await request(app)
+      .put(`/users/edit`)
+      .send({
+        username: "admin_new",
+        email: "admin_new@email.com",
+        password: "87654321",
+        oldPassword: "123456789",
+        phone: "080989999",
+        name: "satrio",
+        gender: "male",
+      })
+      .set("access_token", token)
+      .expect(400);
 
-//   it("should return edit profile FAILED - nothing update", async () => {
-//     const res = await request(app)
-//       .put(`/users/edit`)
-//       .set("access_token", token)
-//       .expect(400);
+    expect(res.body.message).toBe("Invalid old password");
+  });
 
-//     expect(res.body.message).toBe("Didn't change anything");
-//   });
+  it("should return edit profile FAILED - old password is empty", async () => {
+    const res = await request(app)
+      .put(`/users/edit`)
+      .send({
+        username: "admin_new",
+        email: "admin_new@email.com",
+        password: "87654321",
+        oldPassword: "",
+        phone: "080989999",
+        name: "satrio",
+        gender: "male",
+      })
+      .set("access_token", token)
+      .expect(400);
 
-//   it("should return edit profile SUCCESS", async () => {
-//     const res = await request(app)
-//       .put(`/users/edit`)
-//       .send({
-//         username: "admin_new",
-//         email: "admin_new@email.com",
-//         password: "87654321",
-//         oldPassword: "12345678",
-//         phone: "080989999",
-//         name: "satrio",
-//         gender: "male",
-//       })
-//       .set("access_token", token)
-//       .expect(200);
+    expect(res.body.message).toBe("Old password is required");
+  });
 
-//     expect(res.body.message).toBe("User data has been updated");
-//   });
-// });
+  it("should return edit profile FAILED - nothing update", async () => {
+    const res = await request(app)
+      .put(`/users/edit`)
+      .set("access_token", token)
+      .expect(400);
 
-// // route for delete user
-// describe("DELETE /users/:id", () => {
-//   it("should return delete user SUCCESS", async () => {
-//     await mockUser();
+    expect(res.body.message).toBe("Didn't change anything");
+  });
 
-//     const res = await request(app)
-//       .delete("/users/3")
-//       .set("access_token", token)
-//       .expect(200);
+  it("should return edit profile SUCCESS", async () => {
+    const res = await request(app)
+      .put(`/users/edit`)
+      .send({
+        username: "admin_new",
+        email: "admin_new@email.com",
+        password: "87654321",
+        oldPassword: "12345678",
+        phone: "080989999",
+        name: "satrio",
+        gender: "male",
+      })
+      .set("access_token", token)
+      .expect(200);
 
-//     expect(res.body.message).toBe("User with id 3 has been deleted");
-//   });
+    expect(res.body.message).toBe("User data has been updated");
+  });
+});
 
-//   it("should return delete user SUCCESS", async () => {
-//     await mockUser();
+// route for delete user
+describe("DELETE /users/:id", () => {
+  it("should return delete user SUCCESS", async () => {
+    await mockUser();
 
-//     const res = await request(app)
-//       .delete("/users/99")
-//       .set("access_token", token)
-//       .expect(404);
+    const res = await request(app)
+      .delete("/users/3")
+      .set("access_token", token)
+      .expect(200);
 
-//     expect(res.body.message).toBe("Not Found");
-//   });
-// });
+    expect(res.body.message).toBe("User with id 3 has been deleted");
+  });
+
+  it("should return delete user SUCCESS", async () => {
+    await mockUser();
+
+    const res = await request(app)
+      .delete("/users/99")
+      .set("access_token", token)
+      .expect(404);
+
+    expect(res.body.message).toBe("Not Found");
+  });
+});
 
 // describe

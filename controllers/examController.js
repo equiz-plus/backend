@@ -8,6 +8,7 @@ const {
   User,
   Question,
   Certificate,
+  Organization,
 } = require("../models");
 
 // list of exams
@@ -89,6 +90,10 @@ class examController {
           },
           {
             model: ExamSchedule,
+            require: false,
+          },
+          {
+            model: Organization,
             require: false,
           },
         ],
